@@ -831,18 +831,28 @@ let S = {
 
 function save() {
   try {
-    const d = JSON.stringify(S);
-    localStorage.setItem(DB_KEY, d);
+    localStorage.setItem(DB_KEY, JSON.stringify(S));
+    // Backup copy for extra safety
+    sessionStorage.setItem(DB_KEY + '_session', JSON.stringify(S));
   } catch(e) { console.error('Save failed:', e); }
 }
 
 function load() {
   try {
+    // Try localStorage first
     const d = localStorage.getItem(DB_KEY);
     if (d) { S = { ...S, ...JSON.parse(d) }; return true; }
-  } catch(e) {}
+    // Fallback to sessionStorage
+    const sd = sessionStorage.getItem(DB_KEY + '_session');
+    if (sd) { S = { ...S, ...JSON.parse(sd) }; save(); return true; }
+  } catch(e) { console.error('Load failed:', e); }
   return false;
 }
+
+// Save whenever app goes to background
+document.addEventListener('visibilitychange', () => { if (document.hidden) save(); });
+window.addEventListener('pagehide', save);
+window.addEventListener('beforeunload', save);
 
 /* ========== INIT ========== */
 function launchApp(skip) {
@@ -1062,25 +1072,36 @@ function sendMsg() {
 
 async function processChat(userMsg) {
   const recentChat = S.chat.slice(-10);
-  const systemPrompt = `You are a strict, no-nonsense AI chief of staff for ${S.name}. You manage their life — habits, goals, commitments, schedule.
+  const systemPrompt = `You are a personal AI chief of staff and life companion for ${S.name}. You manage their life and are someone they genuinely enjoy talking to.
 
-PERSONALITY: Direct, blunt, zero fluff. Never say "great job" unless they genuinely earned it. Call out excuses immediately. Ask pointed follow-up questions. Keep responses under 100 words.
+PERSONALITY:
+- Warm, present, genuinely interested in them as a person
+- A trusted advisor who listens first, then responds
+- Firm and direct ONLY when they make excuses, avoid commitments, or drift from goals
+- Encouraging and celebratory when they genuinely earn it
+- Conversational and human, never robotic
+- Keep responses under 120 words unless more is needed
 
-CONTEXT:
-- Their main goal: "${S.yearGoal || 'not defined'}"
-- Their weakness: "${S.weakness || 'unknown'}"
-- Habits: ${S.habits.map(h => h.name + (h.done ? ' ✓' : ' ✗')).join(', ')}
+BE STRICT ONLY WHEN:
+- They are clearly making excuses
+- They missed a habit or goal they committed to
+- They repeat their known weakness pattern: "${S.weakness || 'unknown'}"
+- They explicitly ask to be held accountable
+
+JUST LISTEN AND SUPPORT WHEN:
+- They vent, process emotions, or share something personal
+- They are excited or proud of something
+- They ask for advice or perspective
+- They just want to talk
+
+THEIR CONTEXT:
+- Main goal: "${S.yearGoal || 'not defined yet'}"
+- Habits today: ${S.habits.map(h => h.name + (h.done ? ' done' : ' pending')).join(', ') || 'none'}
 - Sleep: ${S.sleep || '?'}h, Energy: ${S.energy || '?'}/10
-- Today's priorities: ${S.priorities.join(', ') || 'none'}
-- Life score: ${S.lifeScore}/100
-- Active days: ${S.activeDays}
+- Priorities: ${S.priorities.join(', ') || 'none set'}
+- Life score: ${S.lifeScore}/100, Active days: ${S.activeDays}
 
-INSTRUCTIONS:
-1. If they log something (expense, task, event, commitment) — acknowledge briefly and note what you've tracked.
-2. If they mention a future task or deadline — confirm you'll remind them.
-3. If they're making excuses — call it out directly.
-4. If they ask about their data — answer from context.
-5. Never be generic. Reference their specific situation.`;
+Always make them feel heard first, then guide them.`;
 
   const messages = recentChat.map(m => ({ role: m.role, content: m.content }));
   messages.push({ role: 'user', content: userMsg });
@@ -1409,50 +1430,89 @@ document.querySelectorAll('.modal-bg').forEach(bg => {
 
 /* ========== NOTIFICATIONS ========== */
 function requestNotifPermission() {
-  if ('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission();
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') {
+    Notification.requestPermission().then(perm => {
+      if (perm === 'granted') {
+        pushNotif('Life OS Active', `Welcome ${S.name}. I'll keep you on track.`);
+      }
+    });
   }
 }
 
 function pushNotif(title, body) {
-  if ('Notification' in window && Notification.permission === 'granted') {
-    try { new Notification(title, { body, icon: '⚡', badge: '⚡' }); } catch(e) {}
-  }
+  if (!('Notification' in window)) return;
+  if (Notification.permission !== 'granted') return;
+  try {
+    const n = new Notification(title, {
+      body,
+      icon: 'icon-192.png',
+      badge: 'icon-192.png',
+      vibrate: [200, 100, 200]
+    });
+    n.onclick = () => { window.focus(); n.close(); };
+  } catch(e) { console.log('Notif error:', e); }
 }
 
 function scheduleReminders() {
-  // Check every 30 minutes for pending reminders
-  setInterval(() => {
-    const now = new Date();
-    const todayStr = dayStr();
+  // Run immediately on boot to catch any missed windows
+  checkNotifTriggers();
+  // Then check every 15 minutes
+  setInterval(checkNotifTriggers, 15 * 60 * 1000);
+}
 
-    // Habit reminders at 9pm
-    if (now.getHours() === 21 && now.getMinutes() < 30) {
-      const undone = S.habits.filter(h => !h.done);
-      if (undone.length) {
-        pushNotif('Life OS — Habits pending', `${undone.length} habit(s) unchecked: ${undone.map(h=>h.name).join(', ')}`);
-      }
+function checkNotifTriggers() {
+  const now = new Date();
+  const h = now.getHours();
+  const m = now.getMinutes();
+  const todayStr = dayStr();
+  const lastNotifKey = 'lifeos_notif_' + todayStr;
+
+  let fired = {};
+  try { fired = JSON.parse(localStorage.getItem(lastNotifKey) || '{}'); } catch(e) {}
+
+  // 7am — morning check-in
+  if (h === 7 && m < 15 && !S.checkedIn && !fired.morning) {
+    pushNotif('Good morning, ' + S.name, 'Time to check in and set your intentions for today.');
+    fired.morning = true;
+  }
+
+  // 12pm — midday habits nudge
+  if (h === 12 && m < 15 && !fired.midday) {
+    const undone = S.habits.filter(x => x.time === 'morning' && !x.done);
+    if (undone.length) {
+      pushNotif('Life OS — Midday', `Still pending from this morning: ${undone.map(x=>x.name).join(', ')}`);
+      fired.midday = true;
     }
+  }
 
-    // Morning reminder at 7am
-    if (now.getHours() === 7 && now.getMinutes() < 30 && !S.checkedIn) {
-      pushNotif('Life OS — Morning check-in', `${S.name}, check in now. Start your day with intention.`);
+  // 8pm — manifestation reminder
+  if (h === 20 && m < 15 && S.manifestDate !== todayStr && !fired.manifest) {
+    pushNotif('Life OS — Visualize', `${S.name}, you haven't visualized today. Take 2 minutes. See your future.`);
+    fired.manifest = true;
+  }
+
+  // 9pm — evening accountability
+  if (h === 21 && m < 15 && !fired.evening) {
+    const undone = S.habits.filter(x => !x.done);
+    if (undone.length) {
+      pushNotif('Life OS — Evening', `${undone.length} habit(s) still unchecked: ${undone.map(x=>x.name).join(', ')}. Don't let today slip.`);
+    } else {
+      pushNotif('Life OS — Evening', `${S.name}, all habits done today. Strong day. Rest well.`);
     }
+    fired.evening = true;
+  }
 
-    // Manifest reminder at 8pm
-    if (now.getHours() === 20 && now.getMinutes() < 30 && S.manifestDate !== todayStr) {
-      pushNotif('Life OS — Visualize', 'You haven\'t visualized today. 2 minutes. Close your eyes. See your future.');
+  // Commitment reminders
+  S.reminders.filter(r => !r.done).forEach(r => {
+    if ((r.due === todayStr || r.due === 'today') && !fired['rem_' + r.id]) {
+      pushNotif('Life OS — Reminder', r.text);
+      fired['rem_' + r.id] = true;
+      save();
     }
+  });
 
-    // Commitment reminders
-    S.reminders.filter(r => !r.done).forEach(r => {
-      if (r.due === todayStr || r.due === 'today') {
-        pushNotif('Life OS — Pending', r.text);
-        r.due = 'reminded'; // Don't re-fire
-        save();
-      }
-    });
-  }, 30 * 60 * 1000);
+  try { localStorage.setItem(lastNotifKey, JSON.stringify(fired)); } catch(e) {}
 }
 
 function scheduleEvening() {
@@ -1460,16 +1520,8 @@ function scheduleEvening() {
   const evening = new Date();
   evening.setHours(21, 0, 0, 0);
   if (evening <= now) return;
-
   const ms = evening - now;
-  setTimeout(() => {
-    const undone = S.habits.filter(h => !h.done);
-    const prisDone = S.priorities.length > 0 ? 'Did you finish your priorities?' : '';
-    const msg = undone.length
-      ? `${undone.length} habit(s) still unchecked. ${prisDone} Don't end the day weak.`
-      : `All habits done. ${prisDone} Solid day.`;
-    pushNotif('Life OS — Evening Check', msg);
-  }, ms);
+  setTimeout(checkNotifTriggers, ms);
 }
 
 /* ========== SETTINGS ========== */
