@@ -527,9 +527,14 @@ input[type=range] { width: 100%; height: 4px; accent-color: var(--gold); cursor:
       <div class="topbar-logo">O</div>
       <div class="topbar-title">Life <span>OS</span></div>
     </div>
-    <div class="score-pill">
-      <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-      <span id="top-score">—</span>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="score-pill">
+        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <span id="top-score">—</span>
+      </div>
+      <button onclick="openSettings()" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:4px;display:flex;align-items:center;">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </button>
     </div>
   </div>
 
@@ -731,7 +736,41 @@ input[type=range] { width: 100%; height: 4px; accent-color: var(--gold); cursor:
   </nav>
 </div>
 
-<!-- ADD HABIT MODAL -->
+<!-- SETTINGS MODAL -->
+<div class="modal-bg" id="m-settings">
+  <div class="modal-panel">
+    <div class="modal-bar"></div>
+    <div class="modal-heading">Settings</div>
+
+    <div class="modal-row">
+      <label>Your Name</label>
+      <input id="set-name" placeholder="Your name">
+    </div>
+    <div class="modal-row">
+      <label>Anthropic API Key</label>
+      <input type="password" id="set-key" placeholder="sk-ant-..." autocomplete="off">
+    </div>
+    <div class="modal-row">
+      <label>Main Goal This Year</label>
+      <input id="set-goal" placeholder="Be specific">
+    </div>
+    <div class="modal-row">
+      <label>Your Biggest Weakness</label>
+      <input id="set-weakness" placeholder="The excuse you keep making">
+    </div>
+
+    <div style="height:0.5px;background:var(--border);margin:16px 0;"></div>
+
+    <button onclick="resetApp()" style="width:100%;padding:12px;background:var(--danger-dim);border:0.5px solid rgba(240,96,93,0.3);border-radius:var(--radius-sm);color:var(--danger);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;margin-bottom:12px;">
+      Reset All Data
+    </button>
+
+    <div class="modal-btns">
+      <button class="m-cancel" onclick="closeModal('m-settings')">Cancel</button>
+      <button class="m-confirm" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+</div>
 <div class="modal-bg" id="m-habit">
   <div class="modal-panel">
     <div class="modal-bar"></div>
@@ -1433,7 +1472,43 @@ function scheduleEvening() {
   }, ms);
 }
 
-/* ========== PWA SERVICE WORKER ========== */
+/* ========== SETTINGS ========== */
+function openSettings() {
+  document.getElementById('set-name').value = S.name || '';
+  document.getElementById('set-key').value = S.apiKey || '';
+  document.getElementById('set-goal').value = S.yearGoal || '';
+  document.getElementById('set-weakness').value = S.weakness || '';
+  openModal('m-settings');
+}
+
+function saveSettings() {
+  const name = document.getElementById('set-name').value.trim();
+  const key = document.getElementById('set-key').value.trim();
+  const goal = document.getElementById('set-goal').value.trim();
+  const weakness = document.getElementById('set-weakness').value.trim();
+
+  if (name) S.name = name;
+  if (key) S.apiKey = key;
+  if (goal) S.yearGoal = goal;
+  if (weakness) S.weakness = weakness;
+
+  save();
+  closeModal('m-settings');
+  updateToday();
+
+  // Show confirmation
+  const btn = document.querySelector('#m-settings .m-confirm');
+  btn.textContent = 'Saved ✓';
+  setTimeout(() => btn.textContent = 'Save', 1500);
+}
+
+function resetApp() {
+  if (!confirm('This will delete ALL your data — habits, goals, logs, everything. Are you sure?')) return;
+  localStorage.removeItem(DB_KEY);
+  location.reload();
+}
+
+/* ========== SETTINGS ========== */
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').catch(() => {});
 }
