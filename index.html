@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0d1117">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Life OS</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #0d1117;
+  --bg-card: #151b25;
+  --bg-card-hover: #1a2230;
+  --bg-elevated: #1c2333;
+  --border: rgba(255,255,255,0.07);
+  --border-light: rgba(255,255,255,0.12);
+  --gold: #d4a020;
+  --gold-light: #f0c040;
+  --gold-dim: rgba(212,160,32,0.15);
+  --gold-border: rgba(212,160,32,0.3);
+  --text-primary: #e6e1d8;
+  --text-secondary: rgba(230,225,216,0.55);
+  --text-tertiary: rgba(230,225,216,0.3);
+  --success: #2dd4a0;
+  --success-dim: rgba(45,212,160,0.12);
+  --danger: #f0605d;
+  --danger-dim: rgba(240,96,93,0.12);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,0.12);
+  --radius: 14px;
+  --radius-sm: 10px;
+  --font-display: 'Outfit', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body { font-family: var(--font-body); background: var(--bg-deep); color: var(--text-primary); }
+
+/* ========== SETUP ========== */
+#setup {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1.5rem;
+  background: var(--bg-deep);
+  overflow-y: auto;
+}
+.setup-inner {
+  width: 100%; max-width: 420px;
+  animation: fadeUp 0.5s ease;
+}
+@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+.setup-logo {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 2rem;
+}
+.setup-logo-icon {
+  width: 48px; height: 48px;
+  background: linear-gradient(135deg, var(--gold), #b8860b);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 800; font-size: 22px;
+  color: #0d1117;
+}
+.setup-logo-text { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+.setup-logo-text span { color: var(--gold); }
+
+.setup-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 0.4rem; }
+.setup-sub { font-size: 14px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 2rem; }
+
+.s-field { margin-bottom: 1.2rem; }
+.s-label { display: block; font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; font-family: var(--font-display); font-weight: 600; }
+.s-input, .s-textarea {
+  width: 100%; padding: 13px 16px;
+  background: var(--bg-card); border: 0.5px solid var(--border-light);
+  border-radius: var(--radius-sm); color: var(--text-primary);
+  font-size: 14px; font-family: var(--font-body); outline: none;
+  transition: border-color 0.2s;
+}
+.s-input:focus, .s-textarea:focus { border-color: var(--gold-border); }
+.s-textarea { resize: vertical; min-height: 70px; }
+
+.s-btn {
+  width: 100%; padding: 15px;
+  background: linear-gradient(135deg, var(--gold), #b8860b);
+  border: none; border-radius: var(--radius);
+  color: #0d1117; font-family: var(--font-display);
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  letter-spacing: -0.2px;
+  margin-top: 0.5rem;
+}
+.s-btn:active { transform: scale(0.98); opacity: 0.9; }
+
+.s-hint { font-size: 11px; color: var(--text-tertiary); text-align: center; margin-top: 1rem; line-height: 1.4; }
+.s-hint a { color: var(--gold); text-decoration: none; }
+
+.s-divider { height: 0.5px; background: var(--border); margin: 1.5rem 0; }
+.s-skip { display: block; text-align: center; font-size: 13px; color: var(--text-secondary); cursor: pointer; margin-top: 0.75rem; padding: 8px; border-radius: 8px; border: none; background: none; font-family: var(--font-body); width: 100%; }
+.s-skip:hover { color: var(--text-primary); }
+
+/* ========== APP SHELL ========== */
+#app { display: none; height: 100vh; flex-direction: column; max-width: 480px; margin: 0 auto; position: relative; }
+
+.topbar {
+  padding: 14px 20px 10px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(13,17,23,0.95);
+  border-bottom: 0.5px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+}
+.topbar-left { display: flex; align-items: center; gap: 8px; }
+.topbar-logo {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--gold), #b8860b);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 800; font-size: 14px; color: #0d1117;
+}
+.topbar-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
+.topbar-title span { color: var(--gold); }
+
+.score-pill {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--gold-dim); border: 0.5px solid var(--gold-border);
+  border-radius: 20px; padding: 5px 12px;
+  font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--gold-light);
+}
+
+.content-area {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.screen { display: none; padding: 20px 20px 100px; min-height: 100%; animation: fadeIn 0.2s ease; }
+.screen.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ========== BOTTOM NAV ========== */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  background: rgba(13,17,23,0.97);
+  border-top: 0.5px solid var(--border);
+  display: flex;
+  padding: 6px 4px calc(6px + var(--safe-bottom));
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  z-index: 200;
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 7px 2px; background: none; border: none;
+  color: var(--text-tertiary); cursor: pointer;
+  font-family: var(--font-display); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.3px; border-radius: 10px;
+  transition: color 0.2s, background 0.2s;
+}
+.nav-item svg { width: 22px; height: 22px; stroke-width: 1.6; }
+.nav-item.active { color: var(--gold-light); background: var(--gold-dim); }
+
+/* ========== TODAY SCREEN ========== */
+.today-greeting { font-family: var(--font-display); font-size: 24px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 3px; }
+.today-date { font-size: 13px; color: var(--text-secondary); margin-bottom: 1.5rem; }
+
+.briefing-card {
+  background: linear-gradient(135deg, rgba(212,160,32,0.08), rgba(212,160,32,0.02));
+  border: 0.5px solid var(--gold-border);
+  border-radius: var(--radius); padding: 18px 20px;
+  margin-bottom: 16px;
+}
+.briefing-label { font-family: var(--font-display); font-size: 11px; font-weight: 600; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.briefing-text { font-size: 14px; line-height: 1.6; color: var(--text-primary); }
+.briefing-text strong { color: var(--gold-light); font-weight: 500; }
+
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.stat-box {
+  background: var(--bg-card); border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px 16px;
+}
+.stat-box.wide { grid-column: 1 / -1; }
+.stat-label { font-family: var(--font-display); font-size: 10px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+.stat-num { font-family: var(--font-display); font-size: 26px; font-weight: 700; letter-spacing: -1px; }
+.stat-unit { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
+.stat-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
+
+.score-visual { display: flex; align-items: center; gap: 16px; }
+.score-ring { width: 60px; height: 60px; flex-shrink: 0; }
+
+.section-title {
+  font-family: var(--font-display); font-size: 11px; font-weight: 700;
+  color: var(--text-secondary); text-transform: uppercase;
+  letter-spacing: 1px; margin-bottom: 12px; margin-top: 8px;
+}
+
+.pending-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px;
+  background: var(--bg-card); border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm); margin-bottom: 8px;
+  transition: background 0.2s;
+}
+.pending-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.pending-dot.urgent { background: var(--danger); }
+.pending-dot.normal { background: var(--gold); }
+.pending-dot.low { background: var(--text-tertiary); }
+.pending-text { flex: 1; font-size: 13px; }
+.pending-time { font-size: 11px; color: var(--text-tertiary); }
+.pending-action {
+  padding: 5px 12px; border-radius: 20px;
+  font-size: 11px; font-family: var(--font-display); font-weight: 600;
+  background: var(--gold-dim); border: 0.5px solid var(--gold-border);
+  color: var(--gold-light); cursor: pointer; border: none;
+}
+
+.checkin-prompt {
+  background: var(--bg-card); border: 0.5px solid var(--border-light);
+  border-radius: var(--radius); padding: 18px 20px;
+  margin-bottom: 16px;
+}
+.checkin-prompt-title { font-family: var(--font-display); font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.checkin-prompt-sub { font-size: 12px; color: var(--text-secondary); margin-bottom: 14px; }
+
+.slider-group { margin-bottom: 14px; }
+.slider-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
+.slider-header span:first-child { color: var(--text-secondary); }
+.slider-val { color: var(--gold-light); font-family: var(--font-display); font-weight: 600; }
+input[type=range] { width: 100%; height: 4px; accent-color: var(--gold); cursor: pointer; }
+
+.priority-inputs { display: flex; flex-direction: column; gap: 8px; margin: 12px 0 16px; }
+.pri-input {
+  padding: 11px 14px; background: rgba(255,255,255,0.03);
+  border: 0.5px solid var(--border); border-radius: 8px;
+  color: var(--text-primary); font-size: 13px; font-family: var(--font-body);
+  outline: none; width: 100%;
+}
+.pri-input:focus { border-color: var(--gold-border); }
+
+.checkin-submit {
+  width: 100%; padding: 13px;
+  background: var(--gold-dim); border: 0.5px solid var(--gold-border);
+  border-radius: var(--radius-sm); color: var(--gold-light);
+  font-family: var(--font-display); font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: opacity 0.2s;
+}
+.checkin-submit:active { opacity: 0.8; }
+
+.checkin-done-banner {
+  display: none; background: var(--success-dim); border: 0.5px solid rgba(45,212,160,0.25);
+  border-radius: var(--radius-sm); padding: 14px 18px; margin-bottom: 16px;
+}
+.checkin-done-banner .cdb-title { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--success); margin-bottom: 3px; }
+.checkin-done-banner .cdb-text { font-size: 12px; color: var(--text-secondary); }
+
+/* ========== CHAT SCREEN ========== */
+.chat-container { display: flex; flex-direction: column; gap: 12px; min-height: 300px; padding-bottom: 70px; }
+
+.chat-msg { display: flex; flex-direction: column; gap: 3px; max-width: 85%; animation: fadeIn 0.2s ease; }
+.chat-msg.user { align-self: flex-end; align-items: flex-end; }
+.chat-msg.ai { align-self: flex-start; align-items: flex-start; }
+
+.chat-bubble {
+  padding: 12px 16px; font-size: 14px; line-height: 1.55;
+  border-radius: 18px; word-break: break-word;
+}
+.chat-msg.user .chat-bubble { background: linear-gradient(135deg, var(--gold), #b8860b); color: #0d1117; border-bottom-right-radius: 4px; font-weight: 500; }
+.chat-msg.ai .chat-bubble { background: var(--bg-card); border: 0.5px solid var(--border-light); color: var(--text-primary); border-bottom-left-radius: 4px; }
+.chat-timestamp { font-size: 10px; color: var(--text-tertiary); padding: 0 6px; }
+
+.typing-dots { display: flex; gap: 4px; align-items: center; padding: 14px 18px; background: var(--bg-card); border: 0.5px solid var(--border-light); border-radius: 18px; border-bottom-left-radius: 4px; width: fit-content; }
+.typing-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--text-tertiary); animation: dotBounce 1.2s ease-in-out infinite; }
+.typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes dotBounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
+
+.chat-input-bar {
+  position: fixed; bottom: 62px; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  padding: 10px 16px calc(10px + var(--safe-bottom));
+  background: rgba(13,17,23,0.97); border-top: 0.5px solid var(--border);
+  display: none; gap: 10px; align-items: flex-end;
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  z-index: 150;
+}
+.chat-input-bar.visible { display: flex; }
+
+.chat-field {
+  flex: 1; padding: 11px 16px; max-height: 100px;
+  background: var(--bg-card); border: 0.5px solid var(--border-light);
+  border-radius: 22px; color: var(--text-primary);
+  font-size: 14px; font-family: var(--font-body);
+  outline: none; resize: none; line-height: 1.4;
+}
+.chat-field:focus { border-color: var(--gold-border); }
+
+.chat-send {
+  width: 42px; height: 42px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--gold), #b8860b);
+  border: none; border-radius: 50%;
+  color: #0d1117; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.1s;
+}
+.chat-send:active { transform: scale(0.92); }
+.chat-send svg { width: 18px; height: 18px; }
+
+/* ========== HABITS SCREEN ========== */
+.screen-header { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 3px; }
+.screen-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+
+.habit-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px;
+  background: var(--bg-card); border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm); margin-bottom: 8px;
+  cursor: pointer; transition: background 0.15s, border-color 0.15s;
+}
+.habit-item:active { background: var(--bg-card-hover); }
+.habit-item.done { border-color: rgba(45,212,160,0.2); }
+
+.habit-check-circle {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 2px solid var(--border-light);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all 0.2s;
+}
+.habit-item.done .habit-check-circle { background: var(--success); border-color: var(--success); }
+.habit-check-circle svg { width: 12px; height: 12px; opacity: 0; transition: opacity 0.2s; }
+.habit-item.done .habit-check-circle svg { opacity: 1; }
+
+.habit-info { flex: 1; }
+.habit-name { font-size: 14px; font-weight: 500; }
+.habit-meta { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.habit-streak { font-family: var(--font-display); font-size: 12px; font-weight: 700; color: var(--text-tertiary); }
+.habit-streak.fire { color: #f59e0b; }
+
+.add-row {
+  width: 100%; padding: 14px;
+  background: transparent; border: 0.5px dashed rgba(255,255,255,0.15);
+  border-radius: var(--radius-sm); color: var(--text-secondary);
+  font-size: 13px; font-family: var(--font-body);
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 8px; transition: background 0.2s, color 0.2s;
+}
+.add-row:active { background: rgba(255,255,255,0.03); }
+
+/* ========== GOALS SCREEN ========== */
+.goal-card {
+  background: var(--bg-card); border: 0.5px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px; margin-bottom: 10px;
+}
+.goal-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+.goal-title { font-family: var(--font-display); font-size: 15px; font-weight: 700; flex: 1; }
+.goal-tag {
+  font-family: var(--font-display); font-size: 10px; font-weight: 700;
+  padding: 3px 10px; border-radius: 20px; letter-spacing: 0.3px;
+}
+.goal-tag.active { background: var(--gold-dim); color: var(--gold-light); }
+.goal-tag.complete { background: var(--success-dim); color: var(--success); }
+
+.goal-bar { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; margin-bottom: 8px; }
+.goal-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--gold), var(--gold-light)); transition: width 0.4s ease; }
+.goal-detail { font-size: 12px; color: var(--text-tertiary); }
+.goal-action { font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+.goal-action strong { color: var(--gold); font-weight: 500; }
+
+/* ========== MANIFEST SCREEN ========== */
+.manifest-hero {
+  text-align: center; padding: 2rem 1rem;
+  background: radial-gradient(ellipse at 50% 0%, rgba(212,160,32,0.12) 0%, transparent 70%);
+  border-radius: var(--radius); margin-bottom: 20px;
+  border: 0.5px solid var(--gold-border);
+}
+.manifest-hero-label { font-family: var(--font-display); font-size: 10px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+.manifest-hero-text { font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.4; color: var(--text-primary); }
+
+.manifest-streak-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg-card); border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px 18px; margin-bottom: 16px;
+}
+.manifest-streak-label { font-size: 13px; color: var(--text-secondary); }
+.manifest-streak-val { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--gold-light); }
+
+.affirmation-card {
+  background: linear-gradient(135deg, rgba(167,139,250,0.08), rgba(167,139,250,0.02));
+  border: 0.5px solid rgba(167,139,250,0.2);
+  border-radius: var(--radius); padding: 18px 20px; margin-bottom: 12px;
+}
+.affirmation-label { font-family: var(--font-display); font-size: 10px; font-weight: 700; color: var(--purple); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.affirmation-text { font-size: 15px; line-height: 1.5; color: var(--text-primary); font-style: italic; }
+
+.future-self-card {
+  background: var(--bg-card); border: 0.5px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px; margin-bottom: 12px;
+}
+.future-label { font-family: var(--font-display); font-size: 10px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.future-text { font-size: 13px; line-height: 1.7; color: var(--text-secondary); }
+.future-text strong { color: var(--text-primary); font-weight: 500; }
+
+.manifest-btn {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, rgba(212,160,32,0.15), rgba(212,160,32,0.05));
+  border: 0.5px solid var(--gold-border); border-radius: var(--radius-sm);
+  color: var(--gold-light); font-family: var(--font-display);
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  transition: opacity 0.2s; letter-spacing: -0.2px;
+}
+.manifest-btn:active { opacity: 0.8; }
+
+/* ========== LOG SCREEN ========== */
+.log-entry {
+  padding: 14px 16px; border-left: 3px solid var(--border);
+  margin-bottom: 4px; margin-left: 8px;
+  transition: background 0.15s;
+}
+.log-entry:hover { background: rgba(255,255,255,0.02); }
+.log-entry.type-habit { border-left-color: var(--success); }
+.log-entry.type-goal { border-left-color: var(--gold); }
+.log-entry.type-chat { border-left-color: var(--purple); }
+.log-entry.type-checkin { border-left-color: #60a5fa; }
+.log-entry.type-manifest { border-left-color: #f472b6; }
+
+.log-time { font-family: var(--font-display); font-size: 10px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+.log-text { font-size: 13px; color: var(--text-primary); line-height: 1.4; }
+.log-type { font-family: var(--font-display); font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 20px; display: inline-block; margin-top: 4px; }
+.log-type.habit { background: var(--success-dim); color: var(--success); }
+.log-type.goal { background: var(--gold-dim); color: var(--gold-light); }
+.log-type.chat { background: var(--purple-dim); color: var(--purple); }
+.log-type.checkin { background: rgba(96,165,250,0.12); color: #60a5fa; }
+.log-type.manifest { background: rgba(244,114,182,0.12); color: #f472b6; }
+
+.log-day-header { font-family: var(--font-display); font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; padding: 16px 0 8px; }
+
+.log-empty { text-align: center; padding: 3rem 1rem; color: var(--text-tertiary); font-size: 14px; }
+
+.log-filter-row { display: flex; gap: 6px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
+.log-filter {
+  padding: 6px 14px; border-radius: 20px;
+  font-family: var(--font-display); font-size: 11px; font-weight: 600;
+  background: var(--bg-card); border: 0.5px solid var(--border);
+  color: var(--text-secondary); cursor: pointer; white-space: nowrap;
+  transition: all 0.15s;
+}
+.log-filter.active { background: var(--gold-dim); border-color: var(--gold-border); color: var(--gold-light); }
+
+/* ========== MODALS ========== */
+.modal-bg {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55); z-index: 500;
+  align-items: flex-end; justify-content: center;
+}
+.modal-bg.open { display: flex; }
+
+.modal-panel {
+  width: 100%; max-width: 480px;
+  background: var(--bg-elevated); border-radius: 20px 20px 0 0;
+  padding: 20px; border: 0.5px solid var(--border-light); border-bottom: none;
+  animation: slideUp 0.25s ease;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.modal-bar { width: 36px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 0 auto 18px; }
+.modal-heading { font-family: var(--font-display); font-size: 18px; font-weight: 700; margin-bottom: 18px; }
+.modal-row { margin-bottom: 12px; }
+.modal-row label { display: block; font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; font-family: var(--font-display); font-weight: 600; }
+.modal-row input, .modal-row select {
+  width: 100%; padding: 12px 14px; background: var(--bg-card);
+  border: 0.5px solid var(--border-light); border-radius: 8px;
+  color: var(--text-primary); font-size: 14px; font-family: var(--font-body); outline: none;
+}
+.modal-row input:focus { border-color: var(--gold-border); }
+.modal-btns { display: flex; gap: 10px; margin-top: 16px; }
+.modal-btns .m-cancel { flex: 1; padding: 13px; background: var(--bg-card); border: 0.5px solid var(--border); border-radius: var(--radius-sm); color: var(--text-secondary); font-family: var(--font-body); font-size: 14px; cursor: pointer; }
+.modal-btns .m-confirm { flex: 2; padding: 13px; background: linear-gradient(135deg, var(--gold), #b8860b); border: none; border-radius: var(--radius-sm); color: #0d1117; font-family: var(--font-display); font-size: 14px; font-weight: 700; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<!-- ========== SETUP SCREEN ========== -->
+<div id="setup">
+  <div class="setup-inner">
+    <div class="setup-logo">
+      <div class="setup-logo-icon">O</div>
+      <div class="setup-logo-text">Life <span>OS</span></div>
+    </div>
+    <div class="setup-title">Configure your system.</div>
+    <p class="setup-sub">This builds your personal AI chief of staff. It will push you, track you, and never accept excuses.</p>
+
+    <div class="s-field">
+      <label class="s-label">Anthropic API Key</label>
+      <input type="password" class="s-input" id="s-key" placeholder="sk-ant-..." autocomplete="off">
+    </div>
+    <div class="s-field">
+      <label class="s-label">Your Name</label>
+      <input type="text" class="s-input" id="s-name" placeholder="What should the AI call you?">
+    </div>
+    <div class="s-field">
+      <label class="s-label">What do you want to achieve this year?</label>
+      <textarea class="s-textarea" id="s-goal" rows="2" placeholder="Be specific — vague goals produce vague results."></textarea>
+    </div>
+    <div class="s-field">
+      <label class="s-label">Your biggest weakness</label>
+      <input type="text" class="s-input" id="s-weakness" placeholder="The excuse you keep making">
+    </div>
+
+    <button class="s-btn" onclick="launchApp()">Activate Life OS</button>
+    <button class="s-skip" onclick="launchApp(true)">Skip — I'll add my API key later</button>
+
+    <p class="s-hint">Your data stays on your phone. API key stored locally only.<br>Set a <a href="https://console.anthropic.com" target="_blank">spending cap</a> on your Anthropic account.</p>
+  </div>
+</div>
+
+<!-- ========== MAIN APP ========== -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">O</div>
+      <div class="topbar-title">Life <span>OS</span></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div id="sync-dot" style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);" title="Sync: off"></div>
+      <div class="score-pill">
+        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <span id="top-score">—</span>
+      </div>
+      <button onclick="openSettings()" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:4px;display:flex;align-items:center;">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="content-area" id="content-area">
+
+    <!-- TODAY -->
+    <div class="screen active" id="scr-today">
+      <div class="today-greeting" id="greeting-text">Good morning.</div>
+      <div class="today-date" id="date-text"></div>
+
+      <div id="checkin-area">
+        <div class="checkin-prompt">
+          <div class="checkin-prompt-title">Morning check-in</div>
+          <div class="checkin-prompt-sub">Rate honestly. Lying to yourself is the weakest move.</div>
+          <div class="slider-group">
+            <div class="slider-header"><span>Sleep last night</span><span class="slider-val" id="sl-sleep-v">7h</span></div>
+            <input type="range" min="3" max="12" step="0.5" value="7" id="sl-sleep" oninput="document.getElementById('sl-sleep-v').textContent=this.value+'h'">
+          </div>
+          <div class="slider-group">
+            <div class="slider-header"><span>Energy right now</span><span class="slider-val" id="sl-energy-v">6</span></div>
+            <input type="range" min="1" max="10" value="6" id="sl-energy" oninput="document.getElementById('sl-energy-v').textContent=this.value">
+          </div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">Today's 3 priorities</div>
+          <div class="priority-inputs">
+            <input class="pri-input" id="pri-1" placeholder="Most important thing today">
+            <input class="pri-input" id="pri-2" placeholder="Second priority">
+            <input class="pri-input" id="pri-3" placeholder="Third priority">
+          </div>
+          <button class="checkin-submit" onclick="doCheckin()">Lock in my day</button>
+        </div>
+      </div>
+
+      <div class="checkin-done-banner" id="checkin-done">
+        <div class="cdb-title">&#10003; Checked in</div>
+        <div class="cdb-text" id="checkin-summary"></div>
+      </div>
+
+      <div class="briefing-card" id="briefing-card" style="display:none;">
+        <div class="briefing-label">Today's Directive</div>
+        <div class="briefing-text" id="briefing-body">Loading your briefing...</div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-box wide">
+          <div class="stat-label">Life Score</div>
+          <div class="score-visual">
+            <svg class="score-ring" viewBox="0 0 60 60">
+              <circle cx="30" cy="30" r="24" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="5"/>
+              <circle id="score-arc" cx="30" cy="30" r="24" fill="none" stroke="url(#sg)" stroke-width="5" stroke-linecap="round" stroke-dasharray="150.8" stroke-dashoffset="150.8" transform="rotate(-90 30 30)"/>
+              <defs><linearGradient id="sg" x1="0%" y1="0%" x2="100%"><stop offset="0%" stop-color="#d4a020"/><stop offset="100%" stop-color="#f0c040"/></linearGradient></defs>
+            </svg>
+            <div>
+              <div class="stat-num" id="score-val">—</div>
+              <div class="stat-sub" id="score-verdict">Check in to start.</div>
+            </div>
+          </div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Sleep</div>
+          <div class="stat-num" id="d-sleep">—<span class="stat-unit">h</span></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Energy</div>
+          <div class="stat-num" id="d-energy">—<span class="stat-unit">/10</span></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Habits</div>
+          <div class="stat-num" id="d-habits">0<span class="stat-unit">/0</span></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Active Days</div>
+          <div class="stat-num" id="d-streak">0<span class="stat-unit">d</span></div>
+        </div>
+      </div>
+
+      <div class="section-title">Pending</div>
+      <div id="pending-list">
+        <div style="font-size:13px;color:var(--text-tertiary);padding:12px 0;">No pending items. Chat to log commitments.</div>
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="screen" id="scr-chat">
+      <div class="chat-container" id="chat-box">
+        <div class="chat-msg ai">
+          <div class="chat-bubble" id="ai-intro">Initializing...</div>
+          <div class="chat-timestamp" id="ai-intro-time"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HABITS -->
+    <div class="screen" id="scr-habits">
+      <div class="screen-header">Habits</div>
+      <div class="screen-sub">Tap to check off. The system is watching.</div>
+      <div id="habit-list"></div>
+      <button class="add-row" onclick="openModal('m-habit')">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" d="M12 4v16m8-8H4" stroke-width="2"/></svg>
+        Add habit
+      </button>
+    </div>
+
+    <!-- GOALS -->
+    <div class="screen" id="scr-goals">
+      <div class="screen-header">Goals</div>
+      <div class="screen-sub">Big targets. No room for vague intentions.</div>
+      <div id="goal-list"></div>
+      <button class="add-row" onclick="openModal('m-goal')">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" d="M12 4v16m8-8H4" stroke-width="2"/></svg>
+        Add goal
+      </button>
+    </div>
+
+    <!-- MANIFEST -->
+    <div class="screen" id="scr-manifest">
+      <div class="screen-header">Manifest</div>
+      <div class="screen-sub">See it. Feel it. Become it.</div>
+
+      <div class="manifest-hero">
+        <div class="manifest-hero-label">Your Future Self</div>
+        <div class="manifest-hero-text" id="manifest-vision">Define your vision in the chat. Tell me who you're becoming.</div>
+      </div>
+
+      <div class="manifest-streak-row">
+        <div class="manifest-streak-label">Visualization streak</div>
+        <div class="manifest-streak-val" id="manifest-streak">0 days</div>
+      </div>
+
+      <div class="section-title">Today's Affirmation</div>
+      <div class="affirmation-card">
+        <div class="affirmation-label">Repeat this. Believe it.</div>
+        <div class="affirmation-text" id="affirmation-text">I am building the life I deserve through discipline, not motivation.</div>
+      </div>
+
+      <div class="section-title">Your Portrait — December 2026</div>
+      <div class="future-self-card">
+        <div class="future-label">Who you will be</div>
+        <div class="future-text" id="future-text">
+          Tell the AI coach about your dreams and goals in the chat. It will paint a vivid picture of your future self here — written in present tense, as if it's already real.
+        </div>
+      </div>
+
+      <button class="manifest-btn" id="manifest-btn" onclick="doVisualize()">I visualized today ✓</button>
+    </div>
+
+    <!-- LOG -->
+    <div class="screen" id="scr-log">
+      <div class="screen-header">Log</div>
+      <div class="screen-sub">Everything recorded. Nothing forgotten.</div>
+
+      <div class="log-filter-row">
+        <button class="log-filter active" onclick="filterLog('all',this)">All</button>
+        <button class="log-filter" onclick="filterLog('checkin',this)">Check-ins</button>
+        <button class="log-filter" onclick="filterLog('habit',this)">Habits</button>
+        <button class="log-filter" onclick="filterLog('goal',this)">Goals</button>
+        <button class="log-filter" onclick="filterLog('chat',this)">Chat</button>
+        <button class="log-filter" onclick="filterLog('manifest',this)">Manifest</button>
+      </div>
+      <div id="log-list">
+        <div class="log-empty">Your log is empty. Start by checking in or chatting.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT INPUT BAR -->
+  <div class="chat-input-bar" id="chat-bar">
+    <textarea class="chat-field" id="chat-field" placeholder="Talk to your chief of staff..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}" oninput="autoGrow(this)"></textarea>
+    <button class="chat-send" onclick="sendMsg()">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+    </button>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="today" onclick="goTab('today',this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+      Today
+    </button>
+    <button class="nav-item" data-tab="chat" onclick="goTab('chat',this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+      Chat
+    </button>
+    <button class="nav-item" data-tab="habits" onclick="goTab('habits',this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      Habits
+    </button>
+    <button class="nav-item" data-tab="goals" onclick="goTab('goals',this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      Goals
+    </button>
+    <button class="nav-item" data-tab="manifest" onclick="goTab('manifest',this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+      Manifest
+    </button>
+    <button class="nav-item" data-tab="log" onclick="goTab('log',this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      Log
+    </button>
+  </nav>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-bg" id="m-settings">
+  <div class="modal-panel">
+    <div class="modal-bar"></div>
+    <div class="modal-heading">Settings</div>
+
+    <div class="modal-row">
+      <label>Your Name</label>
+      <input id="set-name" placeholder="Your name">
+    </div>
+    <div class="modal-row">
+      <label>Anthropic API Key</label>
+      <input type="password" id="set-key" placeholder="sk-ant-..." autocomplete="off">
+    </div>
+    <div class="modal-row">
+      <label>Main Goal This Year</label>
+      <input id="set-goal" placeholder="Be specific">
+    </div>
+    <div class="modal-row">
+      <label>Your Biggest Weakness</label>
+      <input id="set-weakness" placeholder="The excuse you keep making">
+    </div>
+
+    <div style="height:0.5px;background:var(--border);margin:16px 0;"></div>
+
+    <label style="display:block;font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;font-family:var(--font-display);font-weight:600;">Google Sheet Backup</label>
+    <p style="font-size:12px;color:var(--text-tertiary);line-height:1.5;margin-bottom:10px;">Paste your Apps Script web app URL (ends in /exec). Your data will auto-save to your Sheet and sync across devices.</p>
+    <div class="modal-row">
+      <label>Sync URL</label>
+      <input id="set-syncurl" placeholder="https://script.google.com/.../exec">
+    </div>
+    <button onclick="testSync()" style="width:100%;padding:11px;background:var(--bg-card);border:0.5px solid var(--border-light);border-radius:8px;color:var(--text-primary);font-family:var(--font-display);font-size:13px;font-weight:600;cursor:pointer;margin-bottom:4px;">Test Connection</button>
+    <div id="sync-test-result" style="font-size:12px;text-align:center;padding:6px 0;min-height:20px;"></div>
+
+    <div style="height:0.5px;background:var(--border);margin:16px 0;"></div>
+
+    <label style="display:block;font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;font-family:var(--font-display);font-weight:600;">Reliable Daily Reminders</label>
+    <p style="font-size:12px;color:var(--text-tertiary);line-height:1.5;margin-bottom:12px;">Tap to add recurring reminders to your Google Calendar. These fire reliably even when the app is closed.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button onclick="addDailyReminder('Morning check-in', 7, 0)" style="padding:11px 14px;background:var(--bg-card);border:0.5px solid var(--border-light);border-radius:8px;color:var(--text-primary);font-family:var(--font-body);font-size:13px;cursor:pointer;text-align:left;">7:00 AM — Morning check-in</button>
+      <button onclick="addDailyReminder('Midday habit check', 12, 0)" style="padding:11px 14px;background:var(--bg-card);border:0.5px solid var(--border-light);border-radius:8px;color:var(--text-primary);font-family:var(--font-body);font-size:13px;cursor:pointer;text-align:left;">12:00 PM — Midday check</button>
+      <button onclick="addDailyReminder('Visualize your future', 20, 0)" style="padding:11px 14px;background:var(--bg-card);border:0.5px solid var(--border-light);border-radius:8px;color:var(--text-primary);font-family:var(--font-body);font-size:13px;cursor:pointer;text-align:left;">8:00 PM — Manifestation</button>
+      <button onclick="addDailyReminder('Evening accountability', 21, 0)" style="padding:11px 14px;background:var(--bg-card);border:0.5px solid var(--border-light);border-radius:8px;color:var(--text-primary);font-family:var(--font-body);font-size:13px;cursor:pointer;text-align:left;">9:00 PM — Evening review</button>
+    </div>
+
+    <div style="height:0.5px;background:var(--border);margin:16px 0;"></div>
+
+    <button onclick="resetApp()" style="width:100%;padding:12px;background:var(--danger-dim);border:0.5px solid rgba(240,96,93,0.3);border-radius:var(--radius-sm);color:var(--danger);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;margin-bottom:12px;">
+      Reset All Data
+    </button>
+
+    <div class="modal-btns">
+      <button class="m-cancel" onclick="closeModal('m-settings')">Cancel</button>
+      <button class="m-confirm" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+</div>
+<div class="modal-bg" id="m-habit">
+  <div class="modal-panel">
+    <div class="modal-bar"></div>
+    <div class="modal-heading">New Habit</div>
+    <div class="modal-row"><label>Habit name</label><input id="mh-name" placeholder="e.g. Cold shower, Read 20 pages"></div>
+    <div class="modal-row"><label>When</label>
+      <select id="mh-time"><option value="morning">Morning</option><option value="afternoon">Afternoon</option><option value="evening">Evening</option><option value="anytime">Anytime</option></select>
+    </div>
+    <div class="modal-btns">
+      <button class="m-cancel" onclick="closeModal('m-habit')">Cancel</button>
+      <button class="m-confirm" onclick="createHabit()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD GOAL MODAL -->
+<div class="modal-bg" id="m-goal">
+  <div class="modal-panel">
+    <div class="modal-bar"></div>
+    <div class="modal-heading">New Goal</div>
+    <div class="modal-row"><label>Goal</label><input id="mg-name" placeholder="e.g. Run a 10K, Ship my product"></div>
+    <div class="modal-row"><label>Target date</label><input type="date" id="mg-date" style="color-scheme:dark;"></div>
+    <div class="modal-row"><label>Weekly action</label><input id="mg-action" placeholder="What will you do each week?"></div>
+    <div class="modal-btns">
+      <button class="m-cancel" onclick="closeModal('m-goal')">Cancel</button>
+      <button class="m-confirm" onclick="createGoal()">Add</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ========== STATE ========== */
+const DB_KEY = 'lifeos_v2';
+
+let S = {
+  apiKey: '',
+  name: '',
+  yearGoal: '',
+  weakness: '',
+  habits: [],
+  goals: [],
+  log: [],
+  chat: [],
+  reminders: [],
+  lifeScore: 0,
+  sleep: null,
+  energy: null,
+  checkedIn: false,
+  checkinDate: '',
+  activeDays: 0,
+  manifestStreak: 0,
+  manifestDate: '',
+  vision: '',
+  futurePortrait: '',
+  affirmation: 'I am building the life I deserve through discipline, not motivation.',
+  priorities: [],
+  syncUrl: '',
+  lastUpdated: 0
+};
+
+function save() {
+  S.lastUpdated = Date.now();
+  try {
+    localStorage.setItem(DB_KEY, JSON.stringify(S));
+    sessionStorage.setItem(DB_KEY + '_session', JSON.stringify(S));
+  } catch(e) { console.error('Save failed:', e); }
+  queueCloudSync();
+}
+
+function load() {
+  try {
+    const d = localStorage.getItem(DB_KEY);
+    if (d) { S = { ...S, ...JSON.parse(d) }; return true; }
+    const sd = sessionStorage.getItem(DB_KEY + '_session');
+    if (sd) { S = { ...S, ...JSON.parse(sd) }; save(); return true; }
+  } catch(e) { console.error('Load failed:', e); }
+  return false;
+}
+
+/* ========== GOOGLE SHEET SYNC ========== */
+let cloudSyncTimer = null;
+
+function queueCloudSync() {
+  if (!S.syncUrl) return;
+  clearTimeout(cloudSyncTimer);
+  cloudSyncTimer = setTimeout(cloudSync, 2500);
+}
+
+async function cloudSync() {
+  if (!S.syncUrl) return;
+  setSyncStatus('syncing');
+  try {
+    await fetch(S.syncUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'save', data: S })
+    });
+    setSyncStatus('synced');
+  } catch(e) {
+    setSyncStatus('error');
+  }
+}
+
+async function cloudLoad() {
+  if (!S.syncUrl) return null;
+  try {
+    const res = await fetch(S.syncUrl + '?action=load');
+    const j = await res.json();
+    return j.ok ? j.data : null;
+  } catch(e) { return null; }
+}
+
+async function reconcileCloud() {
+  if (!S.syncUrl) return;
+  setSyncStatus('syncing');
+  const remote = await cloudLoad();
+  if (remote && remote.lastUpdated && (!S.lastUpdated || remote.lastUpdated > S.lastUpdated)) {
+    // Cloud is newer — pull it in
+    const syncUrl = S.syncUrl; // preserve
+    S = { ...S, ...remote, syncUrl };
+    try { localStorage.setItem(DB_KEY, JSON.stringify(S)); } catch(e) {}
+    rerenderAll();
+    setSyncStatus('synced');
+  } else {
+    // Local is newer or cloud empty — push up
+    cloudSync();
+  }
+}
+
+function setSyncStatus(state) {
+  const el = document.getElementById('sync-dot');
+  if (!el) return;
+  const colors = { syncing: '#f0c040', synced: '#2dd4a0', error: '#f0605d', off: 'rgba(255,255,255,0.2)' };
+  el.style.background = colors[state] || colors.off;
+  el.title = 'Sync: ' + state;
+}
+
+function rerenderAll() {
+  updateToday();
+  renderHabits();
+  renderGoals();
+  renderLog();
+  updateManifest();
+}
+
+// Save whenever app goes to background
+document.addEventListener('visibilitychange', () => { if (document.hidden) save(); });
+window.addEventListener('pagehide', save);
+window.addEventListener('beforeunload', save);
+
+/* ========== INIT ========== */
+function launchApp(skip) {
+  if (!skip) {
+    const key = document.getElementById('s-key').value.trim();
+    const name = document.getElementById('s-name').value.trim();
+    if (!name) { alert('Enter your name at minimum.'); return; }
+    S.apiKey = key;
+    S.name = name;
+    S.yearGoal = document.getElementById('s-goal').value.trim();
+    S.weakness = document.getElementById('s-weakness').value.trim();
+    S.habits = [
+      { id: uid(), name: 'Morning workout', time: 'morning', streak: 0, done: false, total: 0 },
+      { id: uid(), name: 'No phone first hour', time: 'morning', streak: 0, done: false, total: 0 },
+      { id: uid(), name: 'Read 20 minutes', time: 'evening', streak: 0, done: false, total: 0 }
+    ];
+    if (S.yearGoal) {
+      S.goals = [{ id: uid(), name: S.yearGoal, deadline: '', action: '', progress: 5, done: false }];
+    }
+  } else {
+    S.name = S.name || 'User';
+  }
+  save();
+  bootApp();
+}
+
+function bootApp() {
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+
+  const today = dayStr();
+  if (S.checkinDate !== today) {
+    S.checkedIn = false;
+    S.habits.forEach(h => h.done = false);
+    S.checkinDate = today;
+    save();
+  }
+
+  updateToday();
+  renderHabits();
+  renderGoals();
+  renderLog();
+  updateManifest();
+  initChat();
+  requestNotifPermission();
+  scheduleReminders();
+  setSyncStatus(S.syncUrl ? 'synced' : 'off');
+  reconcileCloud();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (load() && S.name) { bootApp(); }
+});
+
+/* ========== UTILITIES ========== */
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function dayStr(d) { return (d || new Date()).toISOString().split('T')[0]; }
+function timeStr() { return new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }); }
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function getHour() { return new Date().getHours(); }
+function greetWord() { const h = getHour(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; }
+
+/* ========== NAVIGATION ========== */
+function goTab(tab, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('scr-' + tab).classList.add('active');
+  btn.classList.add('active');
+
+  const bar = document.getElementById('chat-bar');
+  bar.classList.toggle('visible', tab === 'chat');
+
+  document.getElementById('content-area').scrollTop = 0;
+}
+
+/* ========== TODAY ========== */
+function updateToday() {
+  document.getElementById('greeting-text').textContent = `${greetWord()}, ${S.name}.`;
+  document.getElementById('date-text').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+
+  if (S.checkedIn) {
+    document.getElementById('checkin-area').style.display = 'none';
+    const banner = document.getElementById('checkin-done');
+    banner.style.display = 'block';
+    document.getElementById('checkin-summary').textContent =
+      `Sleep ${S.sleep}h · Energy ${S.energy}/10 · ${S.priorities.filter(Boolean).length} priorities set`;
+  }
+
+  updateScore();
+  updateDashNums();
+  renderPending();
+}
+
+function updateScore() {
+  let score = 50;
+  if (S.sleep) score += (S.sleep - 6) * 3;
+  if (S.energy) score += (S.energy - 5) * 3;
+  const hDone = S.habits.filter(h => h.done).length;
+  const hTotal = S.habits.length || 1;
+  score += (hDone / hTotal) * 20;
+  score += Math.min(S.activeDays, 30);
+  score = Math.max(10, Math.min(100, Math.round(score)));
+  S.lifeScore = score;
+
+  document.getElementById('top-score').textContent = score;
+  document.getElementById('score-val').textContent = score;
+  const offset = 150.8 * (1 - score / 100);
+  document.getElementById('score-arc').setAttribute('stroke-dashoffset', offset.toFixed(1));
+
+  let v = score >= 85 ? 'Elite zone. Stay relentless.' : score >= 70 ? 'Solid. Room to push.' : score >= 50 ? 'Average. You can do better.' : 'Rebuild. Start now.';
+  document.getElementById('score-verdict').textContent = v;
+}
+
+function updateDashNums() {
+  document.getElementById('d-sleep').innerHTML = (S.sleep || '—') + '<span class="stat-unit">h</span>';
+  document.getElementById('d-energy').innerHTML = (S.energy || '—') + '<span class="stat-unit">/10</span>';
+  const done = S.habits.filter(h => h.done).length;
+  document.getElementById('d-habits').innerHTML = done + '<span class="stat-unit">/' + S.habits.length + '</span>';
+  document.getElementById('d-streak').innerHTML = S.activeDays + '<span class="stat-unit">d</span>';
+}
+
+function doCheckin() {
+  S.sleep = parseFloat(document.getElementById('sl-sleep').value);
+  S.energy = parseInt(document.getElementById('sl-energy').value);
+  S.priorities = [
+    document.getElementById('pri-1').value.trim(),
+    document.getElementById('pri-2').value.trim(),
+    document.getElementById('pri-3').value.trim()
+  ].filter(Boolean);
+  S.checkedIn = true;
+  S.checkinDate = dayStr();
+  S.activeDays = (S.activeDays || 0) + 1;
+
+  addLog('checkin', `Checked in — Sleep: ${S.sleep}h, Energy: ${S.energy}/10. Priorities: ${S.priorities.join(', ') || 'none'}`);
+
+  save();
+  updateToday();
+  generateBriefing();
+
+  // Schedule evening accountability
+  scheduleEvening();
+}
+
+/* ========== BRIEFING ========== */
+async function generateBriefing() {
+  const card = document.getElementById('briefing-card');
+  card.style.display = 'block';
+
+  if (!S.apiKey) {
+    const pris = S.priorities;
+    let text = `Sleep: ${S.sleep}h. Energy: ${S.energy}/10. `;
+    if (pris.length) { text += `Focus on: ${pris[0]}. `; }
+    text += S.sleep < 6 ? 'Low sleep — be strategic, not heroic today.' : 'Decent rest — no excuses today.';
+    document.getElementById('briefing-body').innerHTML = text;
+    return;
+  }
+
+  document.getElementById('briefing-body').textContent = 'Analyzing your data...';
+
+  const prompt = `You are a strict, direct chief of staff for ${S.name}. Generate a short morning briefing (3-4 sentences max). Be blunt, specific, actionable.
+Their data: Sleep: ${S.sleep}h. Energy: ${S.energy}/10. Priorities today: ${S.priorities.join(', ') || 'none set'}. Habits tracked: ${S.habits.map(h=>h.name).join(', ')}. Main goal: ${S.yearGoal || 'undefined'}. Weakness: ${S.weakness || 'unknown'}. Active days streak: ${S.activeDays}. Life score: ${S.lifeScore}/100.
+Respond with ONLY the briefing text. No greetings, no labels.`;
+
+  const reply = await callAI(prompt);
+  document.getElementById('briefing-body').innerHTML = reply || 'Briefing unavailable. Check your API key.';
+}
+
+/* ========== CHAT ========== */
+function initChat() {
+  const intro = S.apiKey
+    ? `I'm your chief of staff. I know your goal: "${S.yearGoal || 'undefined'}". I know your weakness: "${S.weakness || 'unknown'}". I don't motivate — I direct. Tell me what's happening.`
+    : `Life OS active. No API key configured — I can't respond intelligently yet. Add your key in settings to unlock the AI brain. You can still log things manually.`;
+  document.getElementById('ai-intro').textContent = intro;
+  document.getElementById('ai-intro-time').textContent = timeStr();
+
+  // Restore chat history
+  S.chat.slice(-20).forEach(m => {
+    if (m.role === 'user' || m.role === 'assistant') {
+      appendBubble(m.role === 'user' ? 'user' : 'ai', m.content, m.time || '', false);
+    }
+  });
+}
+
+function sendMsg() {
+  const field = document.getElementById('chat-field');
+  const text = field.value.trim();
+  if (!text) return;
+  field.value = '';
+  autoGrow(field);
+
+  const t = timeStr();
+  appendBubble('user', text, t);
+  S.chat.push({ role: 'user', content: text, time: t });
+  addLog('chat', text);
+
+  if (!S.apiKey) {
+    const t2 = timeStr();
+    appendBubble('ai', 'No API key configured. Add one to enable AI responses.', t2);
+    save();
+    return;
+  }
+
+  const dots = showTyping();
+  processChat(text).then(reply => {
+    dots.remove();
+    const t2 = timeStr();
+    appendBubble('ai', reply, t2);
+    S.chat.push({ role: 'assistant', content: reply, time: t2 });
+
+    // Keep chat history manageable
+    if (S.chat.length > 50) S.chat = S.chat.slice(-50);
+    save();
+
+    // Extract commitments
+    extractCommitments(text);
+  });
+}
+
+async function processChat(userMsg) {
+  const recentChat = S.chat.slice(-10);
+  const systemPrompt = `You are a personal AI chief of staff and life companion for ${S.name}. You manage their life and are someone they genuinely enjoy talking to.
+
+PERSONALITY:
+- Warm, present, genuinely interested in them as a person
+- A trusted advisor who listens first, then responds
+- Firm and direct ONLY when they make excuses, avoid commitments, or drift from goals
+- Encouraging and celebratory when they genuinely earn it
+- Conversational and human, never robotic
+- Keep responses under 120 words unless more is needed
+
+BE STRICT ONLY WHEN:
+- They are clearly making excuses
+- They missed a habit or goal they committed to
+- They repeat their known weakness pattern: "${S.weakness || 'unknown'}"
+- They explicitly ask to be held accountable
+
+JUST LISTEN AND SUPPORT WHEN:
+- They vent, process emotions, or share something personal
+- They are excited or proud of something
+- They ask for advice or perspective
+- They just want to talk
+
+THEIR CONTEXT:
+- Main goal: "${S.yearGoal || 'not defined yet'}"
+- Habits today: ${S.habits.map(h => h.name + (h.done ? ' done' : ' pending')).join(', ') || 'none'}
+- Sleep: ${S.sleep || '?'}h, Energy: ${S.energy || '?'}/10
+- Priorities: ${S.priorities.join(', ') || 'none set'}
+- Life score: ${S.lifeScore}/100, Active days: ${S.activeDays}
+
+Always make them feel heard first, then guide them.`;
+
+  const messages = recentChat.map(m => ({ role: m.role, content: m.content }));
+  messages.push({ role: 'user', content: userMsg });
+
+  const reply = await callAI(systemPrompt, messages);
+  return reply || "Connection issue. Check your API key or try again.";
+}
+
+async function callAI(systemOrPrompt, messages) {
+  if (!S.apiKey) return null;
+  try {
+    const body = messages
+      ? { model: 'claude-sonnet-4-20250514', max_tokens: 300, system: systemOrPrompt, messages }
+      : { model: 'claude-sonnet-4-20250514', max_tokens: 300, messages: [{ role: 'user', content: systemOrPrompt }] };
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': S.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (data.error) { console.error('API error:', data.error); return null; }
+    return data.content?.[0]?.text || null;
+  } catch(e) { console.error('API call failed:', e); return null; }
+}
+
+function appendBubble(role, text, time, scroll=true) {
+  const box = document.getElementById('chat-box');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + (role === 'user' ? 'user' : 'ai');
+  div.innerHTML = `<div class="chat-bubble">${escHtml(text).replace(/\n/g,'<br>')}</div><div class="chat-timestamp">${time || timeStr()}</div>`;
+  box.appendChild(div);
+  if (scroll) div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function showTyping() {
+  const box = document.getElementById('chat-box');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ai';
+  div.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+  box.appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth' });
+  return div;
+}
+
+function autoGrow(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
+
+/* ========== COMMITMENT EXTRACTION ========== */
+async function extractCommitments(text) {
+  if (!S.apiKey) {
+    // Simple rule-based extraction
+    const lower = text.toLowerCase();
+    const timeWords = ['tomorrow', 'tonight', 'later', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'next week', 'this evening', 'this morning'];
+    const actionWords = ['need to', 'have to', 'should', 'must', 'going to', 'want to', 'will', 'plan to', 'remind me'];
+    const hasTime = timeWords.some(w => lower.includes(w));
+    const hasAction = actionWords.some(w => lower.includes(w));
+
+    if (hasTime || hasAction) {
+      const reminder = {
+        id: uid(),
+        text: text,
+        created: new Date().toISOString(),
+        due: guessDate(lower),
+        done: false,
+        source: 'chat'
+      };
+      S.reminders.push(reminder);
+      save();
+      renderPending();
+    }
+    return;
+  }
+
+  // AI extraction
+  const prompt = `Extract any commitments, tasks, or reminders from this message. If none, respond with "NONE".
+If found, respond with a JSON array of objects: [{"task": "description", "when": "time/date mentioned or 'unspecified'"}]
+Only respond with NONE or the JSON array. Nothing else.
+
+Message: "${text}"`;
+
+  const reply = await callAI(prompt);
+  if (!reply || reply.trim() === 'NONE') return;
+
+  try {
+    const clean = reply.replace(/```json|```/g, '').trim();
+    const items = JSON.parse(clean);
+    if (Array.isArray(items)) {
+      items.forEach(item => {
+        S.reminders.push({
+          id: uid(),
+          text: item.task,
+          created: new Date().toISOString(),
+          due: item.when || 'unspecified',
+          done: false,
+          source: 'ai'
+        });
+      });
+      save();
+      renderPending();
+    }
+  } catch(e) { /* parsing failed, skip */ }
+}
+
+function guessDate(text) {
+  const now = new Date();
+  if (text.includes('tomorrow')) { now.setDate(now.getDate() + 1); return now.toISOString().split('T')[0]; }
+  if (text.includes('tonight') || text.includes('this evening')) return dayStr() + ' evening';
+  if (text.includes('this morning')) return dayStr() + ' morning';
+  if (text.includes('next week')) { now.setDate(now.getDate() + 7); return now.toISOString().split('T')[0]; }
+  const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+  for (let i = 0; i < days.length; i++) {
+    if (text.includes(days[i])) {
+      const today = now.getDay();
+      let diff = i - today;
+      if (diff <= 0) diff += 7;
+      now.setDate(now.getDate() + diff);
+      return now.toISOString().split('T')[0];
+    }
+  }
+  return 'today';
+}
+
+/* ========== GOOGLE CALENDAR REMINDERS ========== */
+// Generates a Google Calendar event link. Your phone's calendar fires the
+// reminder reliably even when this app is fully closed.
+function calendarUrl(title, dateStr, opts) {
+  opts = opts || {};
+  let start, end;
+
+  // Resolve the date/time
+  let d = new Date();
+  if (dateStr && /^\d{4}-\d{2}-\d{2}$/.test((dateStr || '').split(' ')[0])) {
+    d = new Date(dateStr.split(' ')[0] + 'T09:00:00');
+  }
+  // Time-of-day hints
+  const lower = (dateStr || '').toLowerCase();
+  if (lower.includes('evening') || lower.includes('night')) d.setHours(19, 0, 0, 0);
+  else if (lower.includes('morning')) d.setHours(8, 0, 0, 0);
+  else if (lower.includes('afternoon')) d.setHours(14, 0, 0, 0);
+  else if (!opts.hour) d.setHours(9, 0, 0, 0);
+
+  if (opts.hour != null) d.setHours(opts.hour, opts.min || 0, 0, 0);
+
+  // If the resolved time is already in the past today, push to now+1h
+  if (d < new Date() && !opts.recur) {
+    d = new Date(Date.now() + 60 * 60 * 1000);
+  }
+
+  start = fmtCalDate(d);
+  end = fmtCalDate(new Date(d.getTime() + 30 * 60 * 1000));
+
+  let url = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
+  url += '&text=' + encodeURIComponent('Life OS: ' + title);
+  url += '&dates=' + start + '/' + end;
+  url += '&details=' + encodeURIComponent('Reminder from your Life OS.');
+  if (opts.recur) url += '&recur=' + encodeURIComponent(opts.recur);
+  return url;
+}
+
+function fmtCalDate(d) {
+  // Format: YYYYMMDDTHHMMSS (local time, no Z so calendar uses device tz)
+  const p = n => String(n).padStart(2, '0');
+  return d.getFullYear() + p(d.getMonth()+1) + p(d.getDate()) + 'T' + p(d.getHours()) + p(d.getMinutes()) + '00';
+}
+
+function addToCalendar(id) {
+  const r = S.reminders.find(x => x.id === id);
+  if (!r) return;
+  window.open(calendarUrl(r.text, r.due), '_blank');
+  r.calendared = true;
+  save();
+  renderPending();
+}
+
+/* ========== PENDING / REMINDERS ========== */
+function renderPending() {
+  const el = document.getElementById('pending-list');
+  const active = S.reminders.filter(r => !r.done);
+
+  if (!active.length) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--text-tertiary);padding:12px 0;">No pending items. Chat to log commitments — they\'ll appear here.</div>';
+    return;
+  }
+
+  el.innerHTML = active.slice(0, 8).map(r => `
+    <div class="pending-item">
+      <div class="pending-dot normal"></div>
+      <div style="flex:1;min-width:0;">
+        <div class="pending-text">${escHtml(r.text)}</div>
+        <div class="pending-time">${r.due || ''}${r.calendared ? ' · ⏰ on calendar' : ''}</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
+        <button class="pending-action" style="background:rgba(96,165,250,0.15);border-color:rgba(96,165,250,0.3);color:#60a5fa;" onclick="addToCalendar('${r.id}')" title="Set reminder">⏰</button>
+        <button class="pending-action" onclick="markDone('${r.id}')">Done</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function markDone(id) {
+  const r = S.reminders.find(x => x.id === id);
+  if (r) {
+    r.done = true;
+    addLog('goal', `Completed: ${r.text}`);
+    save();
+    renderPending();
+    updateScore();
+  }
+}
+
+/* ========== HABITS ========== */
+function renderHabits() {
+  const el = document.getElementById('habit-list');
+  el.innerHTML = S.habits.map(h => `
+    <div class="habit-item ${h.done ? 'done' : ''}" onclick="toggleHabit('${h.id}')">
+      <div class="habit-check-circle">
+        <svg fill="none" stroke="#0d1117" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+      </div>
+      <div class="habit-info">
+        <div class="habit-name">${escHtml(h.name)}</div>
+        <div class="habit-meta">${h.time}</div>
+      </div>
+      <div class="habit-streak ${h.streak >= 3 ? 'fire' : ''}">${h.streak > 0 ? h.streak + 'd' : '—'}</div>
+    </div>
+  `).join('');
+}
+
+function toggleHabit(id) {
+  const h = S.habits.find(x => x.id === id);
+  if (!h) return;
+  h.done = !h.done;
+  if (h.done) { h.streak++; h.total++; addLog('habit', `Completed: ${h.name}`); }
+  else if (h.streak > 0) { h.streak--; }
+  save();
+  renderHabits();
+  updateDashNums();
+  updateScore();
+}
+
+function createHabit() {
+  const name = document.getElementById('mh-name').value.trim();
+  const time = document.getElementById('mh-time').value;
+  if (!name) return;
+  S.habits.push({ id: uid(), name, time, streak: 0, done: false, total: 0 });
+  addLog('habit', `New habit added: ${name}`);
+  save();
+  renderHabits();
+  updateDashNums();
+  closeModal('m-habit');
+  document.getElementById('mh-name').value = '';
+}
+
+/* ========== GOALS ========== */
+function renderGoals() {
+  const el = document.getElementById('goal-list');
+  if (!S.goals.length) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--text-tertiary);padding:1rem 0;">No goals set. Add one or tell the chat.</div>';
+    return;
+  }
+  el.innerHTML = S.goals.map(g => `
+    <div class="goal-card">
+      <div class="goal-top">
+        <div class="goal-title">${escHtml(g.name)}</div>
+        <div class="goal-tag ${g.done ? 'complete' : 'active'}">${g.done ? 'Done' : 'Active'}</div>
+      </div>
+      <div class="goal-bar"><div class="goal-bar-fill" style="width:${g.progress}%"></div></div>
+      <div class="goal-detail">${g.progress}% complete${g.deadline ? ' · Due ' + g.deadline : ''}</div>
+      ${g.action ? `<div class="goal-action">Weekly: <strong>${escHtml(g.action)}</strong></div>` : ''}
+    </div>
+  `).join('');
+}
+
+function createGoal() {
+  const name = document.getElementById('mg-name').value.trim();
+  const deadline = document.getElementById('mg-date').value;
+  const action = document.getElementById('mg-action').value.trim();
+  if (!name) return;
+  S.goals.push({ id: uid(), name, deadline, action, progress: 0, done: false });
+  addLog('goal', `New goal: ${name}`);
+  save();
+  renderGoals();
+  closeModal('m-goal');
+  document.getElementById('mg-name').value = '';
+  document.getElementById('mg-date').value = '';
+  document.getElementById('mg-action').value = '';
+}
+
+/* ========== MANIFEST ========== */
+function updateManifest() {
+  if (S.vision) document.getElementById('manifest-vision').textContent = S.vision;
+  if (S.futurePortrait) document.getElementById('future-text').innerHTML = S.futurePortrait;
+  if (S.affirmation) document.getElementById('affirmation-text').textContent = S.affirmation;
+  document.getElementById('manifest-streak').textContent = S.manifestStreak + ' days';
+
+  if (S.manifestDate === dayStr()) {
+    document.getElementById('manifest-btn').textContent = 'Visualized today ✓';
+    document.getElementById('manifest-btn').style.opacity = '0.5';
+  }
+}
+
+function doVisualize() {
+  if (S.manifestDate === dayStr()) return;
+  S.manifestDate = dayStr();
+  S.manifestStreak = (S.manifestStreak || 0) + 1;
+  addLog('manifest', `Visualization completed — streak: ${S.manifestStreak} days`);
+  save();
+  updateManifest();
+
+  // If AI available, refresh affirmation
+  if (S.apiKey) {
+    callAI(`Generate a powerful, specific daily affirmation for ${S.name} based on their goal: "${S.yearGoal}". Present tense, maximum 20 words. No quotes. Just the affirmation.`).then(r => {
+      if (r) {
+        S.affirmation = r.replace(/"/g, '');
+        document.getElementById('affirmation-text').textContent = S.affirmation;
+        save();
+      }
+    });
+  }
+}
+
+/* ========== LOG ========== */
+function addLog(type, text) {
+  S.log.push({
+    id: uid(),
+    type,
+    text,
+    time: new Date().toISOString()
+  });
+  if (S.log.length > 500) S.log = S.log.slice(-500);
+  save();
+}
+
+let logFilter = 'all';
+
+function renderLog() {
+  const el = document.getElementById('log-list');
+  let entries = S.log.slice().reverse();
+  if (logFilter !== 'all') entries = entries.filter(e => e.type === logFilter);
+
+  if (!entries.length) {
+    el.innerHTML = '<div class="log-empty">No entries yet. Start using the app.</div>';
+    return;
+  }
+
+  let html = '';
+  let lastDay = '';
+  entries.slice(0, 100).forEach(e => {
+    const d = new Date(e.time);
+    const day = d.toLocaleDateString('en-US', { weekday:'long', month:'short', day:'numeric' });
+    if (day !== lastDay) {
+      html += `<div class="log-day-header">${day}</div>`;
+      lastDay = day;
+    }
+    const t = d.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+    html += `
+      <div class="log-entry type-${e.type}">
+        <div class="log-time">${t}</div>
+        <div class="log-text">${escHtml(e.text)}</div>
+        <span class="log-type ${e.type}">${e.type}</span>
+      </div>
+    `;
+  });
+  el.innerHTML = html;
+}
+
+function filterLog(type, btn) {
+  logFilter = type;
+  document.querySelectorAll('.log-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLog();
+}
+
+/* ========== MODALS ========== */
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
+});
+
+/* ========== NOTIFICATIONS ========== */
+function requestNotifPermission() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') {
+    Notification.requestPermission().then(perm => {
+      if (perm === 'granted') {
+        pushNotif('Life OS Active', `Welcome ${S.name}. I'll keep you on track.`);
+      }
+    });
+  }
+}
+
+function pushNotif(title, body) {
+  if (!('Notification' in window)) return;
+  if (Notification.permission !== 'granted') return;
+  try {
+    const n = new Notification(title, {
+      body,
+      icon: 'icon-192.png',
+      badge: 'icon-192.png',
+      vibrate: [200, 100, 200]
+    });
+    n.onclick = () => { window.focus(); n.close(); };
+  } catch(e) { console.log('Notif error:', e); }
+}
+
+function scheduleReminders() {
+  // Run immediately on boot to catch any missed windows
+  checkNotifTriggers();
+  // Then check every 15 minutes
+  setInterval(checkNotifTriggers, 15 * 60 * 1000);
+}
+
+function checkNotifTriggers() {
+  const now = new Date();
+  const h = now.getHours();
+  const m = now.getMinutes();
+  const todayStr = dayStr();
+  const lastNotifKey = 'lifeos_notif_' + todayStr;
+
+  let fired = {};
+  try { fired = JSON.parse(localStorage.getItem(lastNotifKey) || '{}'); } catch(e) {}
+
+  // 7am — morning check-in
+  if (h === 7 && m < 15 && !S.checkedIn && !fired.morning) {
+    pushNotif('Good morning, ' + S.name, 'Time to check in and set your intentions for today.');
+    fired.morning = true;
+  }
+
+  // 12pm — midday habits nudge
+  if (h === 12 && m < 15 && !fired.midday) {
+    const undone = S.habits.filter(x => x.time === 'morning' && !x.done);
+    if (undone.length) {
+      pushNotif('Life OS — Midday', `Still pending from this morning: ${undone.map(x=>x.name).join(', ')}`);
+      fired.midday = true;
+    }
+  }
+
+  // 8pm — manifestation reminder
+  if (h === 20 && m < 15 && S.manifestDate !== todayStr && !fired.manifest) {
+    pushNotif('Life OS — Visualize', `${S.name}, you haven't visualized today. Take 2 minutes. See your future.`);
+    fired.manifest = true;
+  }
+
+  // 9pm — evening accountability
+  if (h === 21 && m < 15 && !fired.evening) {
+    const undone = S.habits.filter(x => !x.done);
+    if (undone.length) {
+      pushNotif('Life OS — Evening', `${undone.length} habit(s) still unchecked: ${undone.map(x=>x.name).join(', ')}. Don't let today slip.`);
+    } else {
+      pushNotif('Life OS — Evening', `${S.name}, all habits done today. Strong day. Rest well.`);
+    }
+    fired.evening = true;
+  }
+
+  // Commitment reminders
+  S.reminders.filter(r => !r.done).forEach(r => {
+    if ((r.due === todayStr || r.due === 'today') && !fired['rem_' + r.id]) {
+      pushNotif('Life OS — Reminder', r.text);
+      fired['rem_' + r.id] = true;
+      save();
+    }
+  });
+
+  try { localStorage.setItem(lastNotifKey, JSON.stringify(fired)); } catch(e) {}
+}
+
+function scheduleEvening() {
+  const now = new Date();
+  const evening = new Date();
+  evening.setHours(21, 0, 0, 0);
+  if (evening <= now) return;
+  const ms = evening - now;
+  setTimeout(checkNotifTriggers, ms);
+}
+
+function addDailyReminder(title, hour, min) {
+  const url = calendarUrl(title, dayStr(), { hour, min, recur: 'RRULE:FREQ=DAILY' });
+  window.open(url, '_blank');
+}
+
+/* ========== SETTINGS ========== */
+function openSettings() {
+  document.getElementById('set-name').value = S.name || '';
+  document.getElementById('set-key').value = S.apiKey || '';
+  document.getElementById('set-goal').value = S.yearGoal || '';
+  document.getElementById('set-weakness').value = S.weakness || '';
+  document.getElementById('set-syncurl').value = S.syncUrl || '';
+  document.getElementById('sync-test-result').textContent = '';
+  openModal('m-settings');
+}
+
+function saveSettings() {
+  const name = document.getElementById('set-name').value.trim();
+  const key = document.getElementById('set-key').value.trim();
+  const goal = document.getElementById('set-goal').value.trim();
+  const weakness = document.getElementById('set-weakness').value.trim();
+  const syncUrl = document.getElementById('set-syncurl').value.trim();
+
+  if (name) S.name = name;
+  if (key) S.apiKey = key;
+  if (goal) S.yearGoal = goal;
+  if (weakness) S.weakness = weakness;
+  S.syncUrl = syncUrl;
+
+  save();
+  closeModal('m-settings');
+  updateToday();
+  setSyncStatus(syncUrl ? 'synced' : 'off');
+
+  const btn = document.querySelector('#m-settings .m-confirm');
+  btn.textContent = 'Saved ✓';
+  setTimeout(() => btn.textContent = 'Save', 1500);
+}
+
+async function testSync() {
+  const url = document.getElementById('set-syncurl').value.trim();
+  const result = document.getElementById('sync-test-result');
+  if (!url) { result.textContent = 'Enter a URL first.'; result.style.color = 'var(--danger)'; return; }
+  result.textContent = 'Testing...';
+  result.style.color = 'var(--text-secondary)';
+  try {
+    const res = await fetch(url + '?action=load');
+    const j = await res.json();
+    if (j.ok) { result.textContent = '✓ Connected successfully'; result.style.color = 'var(--success)'; }
+    else { result.textContent = '✗ Connected but error: ' + (j.error || 'unknown'); result.style.color = 'var(--danger)'; }
+  } catch(e) {
+    result.textContent = '✗ Could not connect. Check the URL and deployment access.';
+    result.style.color = 'var(--danger)';
+  }
+}
+
+function resetApp() {
+  if (!confirm('This will delete ALL your data — habits, goals, logs, everything. Are you sure?')) return;
+  localStorage.removeItem(DB_KEY);
+  location.reload();
+}
+
+/* ========== SETTINGS ========== */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
