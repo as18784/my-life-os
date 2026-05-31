@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0d1117">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Life OS</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d1117;
+  --card: #141c27;
+  --card2: #1a2235;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --gold: #d4a020;
+  --gold-l: #f0c040;
+  --gold-d: rgba(212,160,32,0.14);
+  --gold-b: rgba(212,160,32,0.28);
+  --txt: #e6e1d8;
+  --txt2: rgba(230,225,216,0.52);
+  --txt3: rgba(230,225,216,0.28);
+  --green: #2dd4a0;
+  --green-d: rgba(45,212,160,0.12);
+  --red: #f06060;
+  --red-d: rgba(240,96,96,0.12);
+  --blue: #60a5fa;
+  --purple: #a78bfa;
+  --r: 14px; --rs: 10px;
+  --ff: 'Outfit',sans-serif;
+  --fb: 'DM Sans',sans-serif;
+  --sb: env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:var(--fb);background:var(--bg);color:var(--txt);}
+
+/* ── SETUP ── */
+#setup{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1.5rem;background:var(--bg);overflow-y:auto;}
+.su{width:100%;max-width:420px;animation:fadeUp .4s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.su-logo{display:flex;align-items:center;gap:10px;margin-bottom:2rem;}
+.su-icon{width:46px;height:46px;background:linear-gradient(135deg,var(--gold),#a07010);border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:var(--ff);font-weight:800;font-size:22px;color:#0d1117;}
+.su-name{font-family:var(--ff);font-size:21px;font-weight:700;letter-spacing:-.4px;}
+.su-name span{color:var(--gold);}
+.su h2{font-family:var(--ff);font-size:26px;font-weight:700;margin-bottom:.4rem;letter-spacing:-.4px;}
+.su p{font-size:13px;color:var(--txt2);line-height:1.55;margin-bottom:1.8rem;}
+.sf{margin-bottom:1.1rem;}
+.sf label{display:block;font-size:11px;color:var(--txt2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px;font-family:var(--ff);font-weight:600;}
+.sf input,.sf textarea{width:100%;padding:12px 15px;background:var(--card);border:.5px solid var(--border2);border-radius:var(--rs);color:var(--txt);font-size:14px;font-family:var(--fb);outline:none;transition:border-color .2s;}
+.sf input:focus,.sf textarea:focus{border-color:var(--gold-b);}
+.sf textarea{resize:vertical;min-height:68px;}
+.su-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),#a07010);border:none;border-radius:var(--r);color:#0d1117;font-family:var(--ff);font-size:15px;font-weight:700;cursor:pointer;margin-top:.4rem;transition:opacity .2s;}
+.su-btn:active{opacity:.85;}
+.su-skip{display:block;width:100%;background:none;border:none;color:var(--txt2);font-size:13px;font-family:var(--fb);padding:10px;cursor:pointer;margin-top:.5rem;}
+.su-hint{font-size:11px;color:var(--txt3);text-align:center;margin-top:1rem;line-height:1.5;}
+
+/* ── APP SHELL ── */
+#app{display:none;height:100vh;flex-direction:column;max-width:480px;margin:0 auto;position:relative;}
+.topbar{padding:13px 18px 9px;display:flex;align-items:center;justify-content:space-between;background:rgba(13,17,23,.96);border-bottom:.5px solid var(--border);position:sticky;top:0;z-index:100;backdrop-filter:blur(16px);}
+.tb-left{display:flex;align-items:center;gap:8px;}
+.tb-icon{width:30px;height:30px;background:linear-gradient(135deg,var(--gold),#a07010);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--ff);font-weight:800;font-size:13px;color:#0d1117;}
+.tb-title{font-family:var(--ff);font-size:16px;font-weight:700;letter-spacing:-.3px;}
+.tb-title span{color:var(--gold);}
+.tb-right{display:flex;align-items:center;gap:8px;}
+.score-pill{display:flex;align-items:center;gap:5px;background:var(--gold-d);border:.5px solid var(--gold-b);border-radius:20px;padding:5px 12px;font-family:var(--ff);font-size:13px;font-weight:700;color:var(--gold-l);}
+#sync-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.18);transition:background .3s;cursor:default;}
+.tb-gear{background:none;border:none;color:var(--txt2);cursor:pointer;padding:3px;display:flex;align-items:center;}
+
+.content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+.screen{display:none;padding:18px 18px 100px;min-height:100%;animation:fadeIn .2s ease;}
+.screen.active{display:block;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* ── BOTTOM NAV ── */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:rgba(13,17,23,.97);border-top:.5px solid var(--border);display:flex;padding:5px 2px calc(5px + var(--sb));backdrop-filter:blur(20px);z-index:200;}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;background:none;border:none;color:var(--txt3);cursor:pointer;font-family:var(--ff);font-size:10px;font-weight:600;border-radius:9px;transition:color .2s,background .2s;}
+.ni svg{width:21px;height:21px;stroke-width:1.6;}
+.ni.active{color:var(--gold-l);background:var(--gold-d);}
+
+/* ── TODAY ── */
+.t-greet{font-family:var(--ff);font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:3px;}
+.t-date{font-size:12px;color:var(--txt2);margin-bottom:1.3rem;}
+.checkin-card{background:var(--card);border:.5px solid var(--border2);border-radius:var(--r);padding:16px 18px;margin-bottom:14px;}
+.cc-title{font-family:var(--ff);font-size:15px;font-weight:700;margin-bottom:3px;}
+.cc-sub{font-size:12px;color:var(--txt2);margin-bottom:14px;}
+.sl-row{margin-bottom:12px;}
+.sl-hd{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;}
+.sl-hd span:first-child{color:var(--txt2);}
+.sl-val{color:var(--gold-l);font-family:var(--ff);font-weight:600;}
+input[type=range]{width:100%;height:4px;accent-color:var(--gold);cursor:pointer;}
+.pri-inputs{display:flex;flex-direction:column;gap:7px;margin:10px 0 14px;}
+.pri-in{padding:10px 13px;background:rgba(255,255,255,.03);border:.5px solid var(--border);border-radius:8px;color:var(--txt);font-size:13px;font-family:var(--fb);outline:none;width:100%;}
+.pri-in:focus{border-color:var(--gold-b);}
+.cc-btn{width:100%;padding:12px;background:var(--gold-d);border:.5px solid var(--gold-b);border-radius:var(--rs);color:var(--gold-l);font-family:var(--ff);font-size:13px;font-weight:700;cursor:pointer;transition:opacity .2s;}
+.cc-btn:active{opacity:.8;}
+.done-banner{display:none;background:var(--green-d);border:.5px solid rgba(45,212,160,.22);border-radius:var(--rs);padding:12px 16px;margin-bottom:14px;}
+.db-t{font-family:var(--ff);font-size:13px;font-weight:700;color:var(--green);margin-bottom:2px;}
+.db-s{font-size:12px;color:var(--txt2);}
+.briefing{background:linear-gradient(135deg,rgba(212,160,32,.07),rgba(212,160,32,.02));border:.5px solid var(--gold-b);border-radius:var(--r);padding:15px 18px;margin-bottom:14px;display:none;}
+.bl{font-family:var(--ff);font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.bt{font-size:13px;line-height:1.6;color:var(--txt);}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px;}
+.sbox{background:var(--card);border:.5px solid var(--border);border-radius:var(--rs);padding:13px 15px;}
+.sbox.w{grid-column:1/-1;}
+.slb{font-family:var(--ff);font-size:10px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px;}
+.sn{font-family:var(--ff);font-size:24px;font-weight:700;letter-spacing:-1px;}
+.su2{font-size:11px;color:var(--txt2);}
+.sc-ring{display:flex;align-items:center;gap:14px;}
+.ring-svg{width:56px;height:56px;flex-shrink:0;}
+.sec-title{font-family:var(--ff);font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.9px;margin-bottom:10px;margin-top:6px;}
+.rem-item{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--card);border:.5px solid var(--border);border-radius:var(--rs);margin-bottom:7px;}
+.rem-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.rem-dot.daily{background:var(--gold);}
+.rem-dot.weekly{background:var(--purple);}
+.rem-dot.once{background:var(--txt3);}
+.rem-info{flex:1;min-width:0;}
+.rem-text{font-size:13px;}
+.rem-due{font-size:11px;color:var(--txt3);margin-top:1px;}
+.rem-actions{display:flex;gap:5px;flex-shrink:0;}
+.ra{padding:5px 10px;border-radius:20px;font-size:11px;font-family:var(--ff);font-weight:600;cursor:pointer;border:none;transition:opacity .2s;}
+.ra:active{opacity:.75;}
+.ra.cal{background:rgba(96,165,250,.14);color:var(--blue);}
+.ra.cal.done{background:var(--green-d);color:var(--green);}
+.ra.ok{background:var(--green-d);color:var(--green);}
+.ra.del{background:transparent;color:var(--txt3);}
+
+/* ── CHAT ── */
+.chat-msgs{display:flex;flex-direction:column;gap:11px;padding-bottom:65px;}
+.cm{display:flex;flex-direction:column;gap:3px;max-width:86%;animation:fadeIn .2s ease;}
+.cm.user{align-self:flex-end;align-items:flex-end;}
+.cm.ai{align-self:flex-start;align-items:flex-start;}
+.cb{padding:11px 15px;font-size:14px;line-height:1.55;border-radius:17px;word-break:break-word;}
+.cm.user .cb{background:linear-gradient(135deg,var(--gold),#a07010);color:#0d1117;border-bottom-right-radius:4px;font-weight:500;}
+.cm.ai .cb{background:var(--card);border:.5px solid var(--border2);color:var(--txt);border-bottom-left-radius:4px;}
+.cts{font-size:10px;color:var(--txt3);padding:0 5px;}
+.typing{display:flex;gap:4px;align-items:center;padding:13px 16px;background:var(--card);border:.5px solid var(--border2);border-radius:17px;border-bottom-left-radius:4px;width:fit-content;}
+.typing span{width:5px;height:5px;border-radius:50%;background:var(--txt3);animation:db 1.2s ease-in-out infinite;}
+.typing span:nth-child(2){animation-delay:.15s;}
+.typing span:nth-child(3){animation-delay:.3s;}
+@keyframes db{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.chat-bar{position:fixed;bottom:62px;left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:9px 14px calc(9px + var(--sb));background:rgba(13,17,23,.97);border-top:.5px solid var(--border);display:none;gap:9px;align-items:flex-end;backdrop-filter:blur(16px);z-index:150;}
+.chat-bar.vis{display:flex;}
+.chat-field{flex:1;padding:10px 15px;max-height:96px;background:var(--card);border:.5px solid var(--border2);border-radius:20px;color:var(--txt);font-size:14px;font-family:var(--fb);outline:none;resize:none;line-height:1.4;}
+.chat-field:focus{border-color:var(--gold-b);}
+.chat-send{width:40px;height:40px;flex-shrink:0;background:linear-gradient(135deg,var(--gold),#a07010);border:none;border-radius:50%;color:#0d1117;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .1s;}
+.chat-send:active{transform:scale(.92);}
+.chat-send svg{width:17px;height:17px;}
+
+/* ── HABITS ── */
+.sh{font-family:var(--ff);font-size:21px;font-weight:700;letter-spacing:-.4px;margin-bottom:3px;}
+.ss{font-size:13px;color:var(--txt2);margin-bottom:18px;}
+.hab{display:flex;align-items:center;gap:12px;padding:13px 15px;background:var(--card);border:.5px solid var(--border);border-radius:var(--rs);margin-bottom:7px;cursor:pointer;transition:background .15s;}
+.hab:active{background:var(--card2);}
+.hab.done{border-color:rgba(45,212,160,.2);}
+.hck{width:23px;height:23px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+.hab.done .hck{background:var(--green);border-color:var(--green);}
+.hck svg{width:11px;height:11px;opacity:0;transition:opacity .2s;}
+.hab.done .hck svg{opacity:1;}
+.hi{flex:1;}
+.hn{font-size:14px;font-weight:500;}
+.hm{font-size:11px;color:var(--txt3);margin-top:2px;}
+.hst{font-family:var(--ff);font-size:12px;font-weight:700;color:var(--txt3);}
+.hst.fire{color:#f59e0b;}
+.add-row{width:100%;padding:13px;background:transparent;border:.5px dashed rgba(255,255,255,.13);border-radius:var(--rs);color:var(--txt2);font-size:13px;font-family:var(--fb);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:7px;transition:background .2s;}
+.add-row:active{background:rgba(255,255,255,.03);}
+
+/* ── GOALS ── */
+.goal{background:var(--card);border:.5px solid var(--border);border-radius:var(--r);padding:15px 17px;margin-bottom:10px;}
+.gt{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:9px;}
+.gn{font-family:var(--ff);font-size:15px;font-weight:700;flex:1;}
+.gbadge{font-family:var(--ff);font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;}
+.gbadge.a{background:var(--gold-d);color:var(--gold-l);}
+.gbadge.d{background:var(--green-d);color:var(--green);}
+.gbar{height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-bottom:7px;}
+.gbf{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--gold-l));transition:width .4s;}
+.gd{font-size:11px;color:var(--txt3);}
+.ga{font-size:12px;color:var(--txt2);margin-top:5px;}
+.ga strong{color:var(--gold);font-weight:500;}
+
+/* ── MANIFEST ── */
+.mhero{text-align:center;padding:1.8rem 1rem;background:radial-gradient(ellipse at 50% 0%,rgba(212,160,32,.11) 0%,transparent 70%);border-radius:var(--r);border:.5px solid var(--gold-b);margin-bottom:16px;}
+.mhl{font-family:var(--ff);font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;}
+.mht{font-family:var(--ff);font-size:19px;font-weight:700;letter-spacing:-.3px;line-height:1.4;}
+.mstreak{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:.5px solid var(--border);border-radius:var(--rs);padding:13px 17px;margin-bottom:14px;}
+.msl{font-size:13px;color:var(--txt2);}
+.msv{font-family:var(--ff);font-size:20px;font-weight:700;color:var(--gold-l);}
+.aff{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(167,139,250,.02));border:.5px solid rgba(167,139,250,.2);border-radius:var(--r);padding:16px 18px;margin-bottom:11px;}
+.affl{font-family:var(--ff);font-size:10px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;}
+.afft{font-size:14px;line-height:1.55;color:var(--txt);font-style:italic;}
+.future{background:var(--card);border:.5px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:11px;}
+.fl{font-family:var(--ff);font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:9px;}
+.ft{font-size:13px;line-height:1.7;color:var(--txt2);}
+.mvis-btn{width:100%;padding:13px;background:var(--gold-d);border:.5px solid var(--gold-b);border-radius:var(--rs);color:var(--gold-l);font-family:var(--ff);font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s;}
+.mvis-btn:active{opacity:.8;}
+
+/* ── LOG ── */
+.lf-row{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:3px;}
+.lf{padding:5px 13px;border-radius:20px;font-family:var(--ff);font-size:11px;font-weight:600;background:var(--card);border:.5px solid var(--border);color:var(--txt2);cursor:pointer;white-space:nowrap;transition:all .15s;}
+.lf.active{background:var(--gold-d);border-color:var(--gold-b);color:var(--gold-l);}
+.ldh{font-family:var(--ff);font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.7px;padding:13px 0 7px;}
+.le{padding:12px 0 12px 14px;border-left:3px solid var(--border);margin-left:6px;}
+.le.habit{border-left-color:var(--green);}
+.le.goal{border-left-color:var(--gold);}
+.le.chat{border-left-color:var(--purple);}
+.le.checkin{border-left-color:var(--blue);}
+.le.manifest{border-left-color:#f472b6;}
+.ltime{font-family:var(--ff);font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px;}
+.ltext{font-size:13px;color:var(--txt);line-height:1.4;}
+.ltag{font-family:var(--ff);font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;display:inline-block;margin-top:4px;}
+.ltag.habit{background:var(--green-d);color:var(--green);}
+.ltag.goal{background:var(--gold-d);color:var(--gold-l);}
+.ltag.chat{background:rgba(167,139,250,.12);color:var(--purple);}
+.ltag.checkin{background:rgba(96,165,250,.12);color:var(--blue);}
+.ltag.manifest{background:rgba(244,114,182,.12);color:#f472b6;}
+.log-empty{text-align:center;padding:2.5rem 1rem;color:var(--txt3);font-size:13px;}
+
+/* ── MODALS ── */
+.mover{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:flex-end;justify-content:center;}
+.mover.open{display:flex;}
+.mpanel{width:100%;max-width:480px;background:#161e2e;border-radius:20px 20px 0 0;padding:18px;border:.5px solid var(--border2);border-bottom:none;animation:slideUp .22s ease;max-height:90vh;overflow-y:auto;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+.mbar{width:34px;height:4px;background:rgba(255,255,255,.14);border-radius:2px;margin:0 auto 16px;}
+.mh{font-family:var(--ff);font-size:17px;font-weight:700;margin-bottom:16px;}
+.mr{margin-bottom:11px;}
+.mr label{display:block;font-size:11px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;font-family:var(--ff);font-weight:600;}
+.mr input,.mr select,.mr textarea{width:100%;padding:11px 13px;background:var(--card);border:.5px solid var(--border2);border-radius:8px;color:var(--txt);font-size:14px;font-family:var(--fb);outline:none;}
+.mr input:focus,.mr textarea:focus{border-color:var(--gold-b);}
+.mr textarea{resize:vertical;min-height:70px;}
+.mbtns{display:flex;gap:9px;margin-top:14px;}
+.mb-cancel{flex:1;padding:12px;background:var(--card);border:.5px solid var(--border);border-radius:var(--rs);color:var(--txt2);font-family:var(--fb);font-size:14px;cursor:pointer;}
+.mb-ok{flex:2;padding:12px;background:linear-gradient(135deg,var(--gold),#a07010);border:none;border-radius:var(--rs);color:#0d1117;font-family:var(--ff);font-size:14px;font-weight:700;cursor:pointer;}
+.sdivider{height:.5px;background:var(--border);margin:14px 0;}
+.danger-btn{width:100%;padding:12px;background:var(--red-d);border:.5px solid rgba(240,96,96,.28);border-radius:var(--rs);color:var(--red);font-family:var(--ff);font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px;}
+.sec-btn{width:100%;padding:11px;background:var(--card);border:.5px solid var(--border2);border-radius:var(--rs);color:var(--txt);font-family:var(--ff);font-size:13px;font-weight:600;cursor:pointer;text-align:left;margin-bottom:7px;display:flex;align-items:center;gap:10px;}
+.sec-btn svg{width:16px;height:16px;flex-shrink:0;opacity:.6;}
+#sync-result{font-size:12px;text-align:center;padding:5px 0;min-height:18px;}
+.update-banner{background:var(--gold-d);border:.5px solid var(--gold-b);border-radius:var(--rs);padding:10px 14px;font-size:13px;color:var(--gold-l);margin-bottom:12px;display:none;}
+</style>
+</head>
+<body>
+
+<!-- SETUP -->
+<div id="setup">
+  <div class="su">
+    <div class="su-logo">
+      <div class="su-icon">O</div>
+      <div class="su-name">Life <span>OS</span></div>
+    </div>
+    <h2>Configure your system.</h2>
+    <p>Your personal AI — remembers everything, helps you stay on track, and builds your vision with you.</p>
+    <div class="sf"><label>Anthropic API Key</label><input type="password" id="s-key" placeholder="sk-ant-..." autocomplete="off"></div>
+    <div class="sf"><label>Your Name</label><input type="text" id="s-name" placeholder="What should I call you?"></div>
+    <div class="sf"><label>Main goal this year</label><textarea id="s-goal" rows="2" placeholder="Be specific — vague goals produce vague results."></textarea></div>
+    <div class="sf"><label>Your biggest weakness / excuse</label><input type="text" id="s-weakness" placeholder="The pattern you want to break"></div>
+    <button class="su-btn" onclick="launchApp()">Activate Life OS →</button>
+    <button class="su-skip" onclick="launchApp(true)">Skip — add API key later in settings</button>
+    <p class="su-hint">Your data stays on your device. API key never leaves your browser except to talk to Anthropic.</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-icon">O</div>
+      <div class="tb-title">Life <span>OS</span></div>
+    </div>
+    <div class="tb-right">
+      <div id="sync-dot" title="Sync off"></div>
+      <div class="score-pill">
+        <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <span id="top-score">—</span>
+      </div>
+      <button class="tb-gear" onclick="openSettings()">
+        <svg width="19" height="19" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="content" id="content">
+
+    <!-- TODAY -->
+    <div class="screen active" id="scr-today">
+      <div class="t-greet" id="greet">Good morning.</div>
+      <div class="t-date" id="t-date"></div>
+
+      <div id="checkin-wrap">
+        <div class="checkin-card">
+          <div class="cc-title">Morning check-in</div>
+          <div class="cc-sub">Honest answers only — no one's watching except your future self.</div>
+          <div class="sl-row">
+            <div class="sl-hd"><span>Sleep last night</span><span class="sl-val" id="slv">7h</span></div>
+            <input type="range" min="3" max="12" step="0.5" value="7" id="sl-sleep" oninput="document.getElementById('slv').textContent=this.value+'h'">
+          </div>
+          <div class="sl-row">
+            <div class="sl-hd"><span>Energy right now</span><span class="sl-val" id="sev">7</span></div>
+            <input type="range" min="1" max="10" value="7" id="sl-energy" oninput="document.getElementById('sev').textContent=this.value">
+          </div>
+          <div style="font-size:12px;color:var(--txt2);margin-bottom:7px;">3 priorities for today</div>
+          <div class="pri-inputs">
+            <input class="pri-in" id="p1" placeholder="Most important thing">
+            <input class="pri-in" id="p2" placeholder="Second priority">
+            <input class="pri-in" id="p3" placeholder="Third priority">
+          </div>
+          <button class="cc-btn" onclick="doCheckin()">Lock in my day →</button>
+        </div>
+      </div>
+
+      <div class="done-banner" id="done-banner">
+        <div class="db-t">✓ Checked in</div>
+        <div class="db-s" id="done-sum"></div>
+      </div>
+
+      <div class="briefing" id="briefing">
+        <div class="bl">Today's Directive</div>
+        <div class="bt" id="briefing-text">Loading...</div>
+      </div>
+
+      <div class="sg">
+        <div class="sbox w">
+          <div class="slb">Life Score</div>
+          <div class="sc-ring">
+            <svg class="ring-svg" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="22" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="5"/>
+              <circle id="score-arc" cx="28" cy="28" r="22" fill="none" stroke="url(#sg)" stroke-width="5" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="138.2" transform="rotate(-90 28 28)"/>
+              <defs><linearGradient id="sg" x1="0%" y1="0%" x2="100%"><stop offset="0%" stop-color="#d4a020"/><stop offset="100%" stop-color="#f0c040"/></linearGradient></defs>
+            </svg>
+            <div>
+              <div class="sn" id="score-n">—</div>
+              <div class="su2" id="score-v">Check in to start.</div>
+            </div>
+          </div>
+        </div>
+        <div class="sbox"><div class="slb">Sleep</div><div class="sn" id="d-sleep">—<span style="font-size:12px;color:var(--txt2)">h</span></div></div>
+        <div class="sbox"><div class="slb">Energy</div><div class="sn" id="d-energy">—<span style="font-size:12px;color:var(--txt2)">/10</span></div></div>
+        <div class="sbox"><div class="slb">Habits</div><div class="sn" id="d-habits">0<span style="font-size:12px;color:var(--txt2)">/0</span></div></div>
+        <div class="sbox"><div class="slb">Active Days</div><div class="sn" id="d-days">0<span style="font-size:12px;color:var(--txt2)">d</span></div></div>
+      </div>
+
+      <div class="sec-title">Reminders</div>
+      <div id="rem-list"><div style="font-size:13px;color:var(--txt3);padding:8px 0;">Tell the chat to remind you of things — they'll appear here.</div></div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="screen" id="scr-chat">
+      <div class="chat-msgs" id="chat-box">
+        <div class="cm ai">
+          <div class="cb" id="ai-intro">Hello...</div>
+          <div class="cts" id="ai-intro-ts"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HABITS -->
+    <div class="screen" id="scr-habits">
+      <div class="sh">Habits</div>
+      <div class="ss">Tap to check off. No lying to yourself.</div>
+      <div id="hab-list"></div>
+      <button class="add-row" onclick="openModal('m-habit')">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Add habit
+      </button>
+    </div>
+
+    <!-- GOALS -->
+    <div class="screen" id="scr-goals">
+      <div class="sh">Goals</div>
+      <div class="ss">Big targets, broken into action.</div>
+      <div id="goal-list"></div>
+      <button class="add-row" onclick="openModal('m-goal')">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Add goal
+      </button>
+    </div>
+
+    <!-- MANIFEST -->
+    <div class="screen" id="scr-manifest">
+      <div class="sh">Manifest</div>
+      <div class="ss">See it. Feel it. Become it.</div>
+      <div class="mhero">
+        <div class="mhl">Your Future Self</div>
+        <div class="mht" id="m-vision">Tell the chat who you're becoming. I'll paint the picture here.</div>
+      </div>
+      <div class="mstreak">
+        <div class="msl">Visualization streak</div>
+        <div class="msv" id="m-streak">0 days</div>
+      </div>
+      <div class="sec-title">Today's Affirmation</div>
+      <div class="aff">
+        <div class="affl">Repeat this. Mean it.</div>
+        <div class="afft" id="m-aff">I am building the life I deserve — one decision at a time.</div>
+      </div>
+      <div class="sec-title">Who you will be</div>
+      <div class="future">
+        <div class="fl">Your Portrait</div>
+        <div class="ft" id="m-future">Share your vision in the chat. Your AI will write a vivid portrait of your future life — in present tense, as if it's already real.</div>
+      </div>
+      <button class="mvis-btn" id="vis-btn" onclick="doVisualize()">I visualized today ✓</button>
+    </div>
+
+    <!-- LOG -->
+    <div class="screen" id="scr-log">
+      <div class="sh">Log</div>
+      <div class="ss">Everything recorded. Nothing forgotten.</div>
+      <div class="lf-row">
+        <button class="lf active" onclick="filterLog('all',this)">All</button>
+        <button class="lf" onclick="filterLog('checkin',this)">Check-ins</button>
+        <button class="lf" onclick="filterLog('habit',this)">Habits</button>
+        <button class="lf" onclick="filterLog('goal',this)">Goals</button>
+        <button class="lf" onclick="filterLog('chat',this)">Chat</button>
+        <button class="lf" onclick="filterLog('manifest',this)">Manifest</button>
+      </div>
+      <div id="log-list"><div class="log-empty">No entries yet. Start by checking in.</div></div>
+    </div>
+  </div>
+
+  <!-- CHAT BAR -->
+  <div class="chat-bar" id="chat-bar">
+    <textarea class="chat-field" id="chat-field" placeholder="Talk to your chief of staff..." rows="1"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"
+      oninput="autoGrow(this)"></textarea>
+    <button class="chat-send" onclick="sendMsg()">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+    </button>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bnav">
+    <button class="ni active" onclick="goTab('today',this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+      Today
+    </button>
+    <button class="ni" onclick="goTab('chat',this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+      Chat
+    </button>
+    <button class="ni" onclick="goTab('habits',this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      Habits
+    </button>
+    <button class="ni" onclick="goTab('goals',this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      Goals
+    </button>
+    <button class="ni" onclick="goTab('manifest',this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+      Manifest
+    </button>
+    <button class="ni" onclick="goTab('log',this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      Log
+    </button>
+  </nav>
+</div>
+
+<!-- HABIT MODAL -->
+<div class="mover" id="m-habit">
+  <div class="mpanel">
+    <div class="mbar"></div>
+    <div class="mh">New Habit</div>
+    <div class="mr"><label>Name</label><input id="mh-n" placeholder="e.g. Cold shower, Read 20 pages"></div>
+    <div class="mr"><label>When</label><select id="mh-t"><option value="morning">Morning</option><option value="afternoon">Afternoon</option><option value="evening">Evening</option><option value="anytime">Anytime</option></select></div>
+    <div class="mbtns"><button class="mb-cancel" onclick="closeModal('m-habit')">Cancel</button><button class="mb-ok" onclick="saveHabit()">Add</button></div>
+  </div>
+</div>
+
+<!-- GOAL MODAL -->
+<div class="mover" id="m-goal">
+  <div class="mpanel">
+    <div class="mbar"></div>
+    <div class="mh">New Goal</div>
+    <div class="mr"><label>Goal</label><input id="mg-n" placeholder="e.g. Run a 10K, launch my side project"></div>
+    <div class="mr"><label>Target date</label><input type="date" id="mg-d" style="color-scheme:dark"></div>
+    <div class="mr"><label>Weekly action</label><input id="mg-a" placeholder="What will you do each week?"></div>
+    <div class="mbtns"><button class="mb-cancel" onclick="closeModal('m-goal')">Cancel</button><button class="mb-ok" onclick="saveGoal()">Add</button></div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="mover" id="m-settings">
+  <div class="mpanel">
+    <div class="mbar"></div>
+    <div class="mh">Settings</div>
+
+    <div id="update-banner" class="update-banner">A new version is available. Tap "Force Update" below to load it.</div>
+
+    <div class="mr"><label>Your Name</label><input id="st-name" placeholder="Your name"></div>
+    <div class="mr"><label>Anthropic API Key</label><input type="password" id="st-key" placeholder="sk-ant-..." autocomplete="off"></div>
+    <div class="mr"><label>Main Goal This Year</label><input id="st-goal" placeholder="Be specific"></div>
+    <div class="mr"><label>Biggest Weakness</label><input id="st-weak" placeholder="The pattern to break"></div>
+
+    <div class="sdivider"></div>
+    <div style="font-family:var(--ff);font-size:11px;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:9px;font-weight:600;">Google Sheet Backup</div>
+    <p style="font-size:12px;color:var(--txt3);line-height:1.5;margin-bottom:10px;">Auto-saves all your data to your own Google Sheet. Works across every device.</p>
+    <div class="mr"><label>Sync URL (Apps Script /exec)</label><input id="st-sync" placeholder="https://script.google.com/.../exec"></div>
+    <button class="sec-btn" onclick="testSync()" style="margin-bottom:4px;">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      Test Connection
+    </button>
+    <div id="sync-result"></div>
+
+    <div class="sdivider"></div>
+    <div style="font-family:var(--ff);font-size:11px;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:9px;font-weight:600;">Daily Reminders (Google Calendar)</div>
+    <p style="font-size:12px;color:var(--txt3);line-height:1.5;margin-bottom:10px;">Tap to add a recurring reminder to your Google Calendar. Fires reliably even when the app is closed.</p>
+    <button class="sec-btn" onclick="addCalRecurring('Morning check-in',7,0)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>7:00 AM — Morning check-in (daily)</button>
+    <button class="sec-btn" onclick="addCalRecurring('Life OS midday check',12,0)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>12:00 PM — Midday habit check (daily)</button>
+    <button class="sec-btn" onclick="addCalRecurring('Life OS visualize',20,0)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>8:00 PM — Manifestation (daily)</button>
+    <button class="sec-btn" onclick="addCalRecurring('Life OS evening review',21,0)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>9:00 PM — Evening review (daily)</button>
+
+    <div class="sdivider"></div>
+    <div style="font-family:var(--ff);font-size:11px;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:9px;font-weight:600;">App</div>
+    <button class="sec-btn" onclick="forceUpdate()">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      Force Update (clear cache & reload)
+    </button>
+
+    <div class="sdivider"></div>
+    <button class="danger-btn" onclick="resetAll()">Reset All Data</button>
+
+    <div class="mbtns"><button class="mb-cancel" onclick="closeModal('m-settings')">Cancel</button><button class="mb-ok" onclick="saveSettings()">Save</button></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════ STATE ═══════════ */
+const DB = 'lifeos_v3';
+let S = {
+  key:'', name:'', goal:'', weakness:'', syncUrl:'',
+  habits:[], goals:[], reminders:[], log:[], chat:[],
+  score:0, sleep:null, energy:null, checkedIn:false,
+  checkinDate:'', activeDays:0,
+  mStreak:0, mDate:'', vision:'', future:'',
+  affirmation:'I am building the life I deserve — one decision at a time.',
+  priorities:[], lastUpdated:0
+};
+
+function save() {
+  S.lastUpdated = Date.now();
+  try { localStorage.setItem(DB, JSON.stringify(S)); } catch(e){}
+  try { sessionStorage.setItem(DB+'_bak', JSON.stringify(S)); } catch(e){}
+  queueSync();
+}
+
+function load() {
+  try {
+    const d = localStorage.getItem(DB);
+    if (d) { S = {...S, ...JSON.parse(d)}; return true; }
+    const b = sessionStorage.getItem(DB+'_bak');
+    if (b) { S = {...S, ...JSON.parse(b)}; save(); return true; }
+  } catch(e){}
+  return false;
+}
+
+document.addEventListener('visibilitychange', ()=>{ if(document.hidden) save(); });
+window.addEventListener('pagehide', save);
+window.addEventListener('beforeunload', save);
+
+/* ═══════════ UTILS ═══════════ */
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+const dayStr = (d) => (d||new Date()).toISOString().split('T')[0];
+const timeStr = () => new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+const esc = s => { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; };
+const p2 = n => String(n).padStart(2,'0');
+
+function fmt12(h,m){
+  const ap=h>=12?'PM':'AM'; let hh=h%12; if(!hh)hh=12;
+  return hh+(m?':'+p2(m):'')+' '+ap;
+}
+
+/* ═══════════ INIT ═══════════ */
+function launchApp(skip) {
+  if (!skip) {
+    const name = document.getElementById('s-name').value.trim();
+    if (!name) { alert('Please enter your name.'); return; }
+    S.key = document.getElementById('s-key').value.trim();
+    S.name = name;
+    S.goal = document.getElementById('s-goal').value.trim();
+    S.weakness = document.getElementById('s-weakness').value.trim();
+    if (!S.habits.length) {
+      S.habits = [
+        {id:uid(),name:'Morning workout',time:'morning',streak:0,done:false,total:0},
+        {id:uid(),name:'No phone first hour',time:'morning',streak:0,done:false,total:0},
+        {id:uid(),name:'Read 20 minutes',time:'evening',streak:0,done:false,total:0}
+      ];
+    }
+    if (S.goal && !S.goals.length) {
+      S.goals = [{id:uid(),name:S.goal,deadline:'',action:'',progress:5,done:false}];
+    }
+  } else {
+    S.name = S.name || 'Friend';
+  }
+  save();
+  boot();
+}
+
+function boot() {
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  const today = dayStr();
+  if (S.checkinDate !== today) {
+    S.checkedIn = false;
+    S.habits.forEach(h => h.done = false);
+    S.checkinDate = today;
+    save();
+  }
+  render();
+  initChat();
+  reqNotif();
+  setSyncDot(S.syncUrl ? 'ok' : 'off');
+  reconcile();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (load() && S.name) boot();
+});
+
+/* ═══════════ RENDER ALL ═══════════ */
+function render() {
+  renderToday();
+  renderHabits();
+  renderGoals();
+  renderManifest();
+  renderLog();
+}
+
+/* ═══════════ TODAY ═══════════ */
+function renderToday() {
+  const h = new Date().getHours();
+  const gr = h<12?'Good morning':'Good afternoon';
+  document.getElementById('greet').textContent = gr+(S.name?', '+S.name:'')+'.'
+  document.getElementById('t-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+  if (S.checkedIn) {
+    document.getElementById('checkin-wrap').style.display = 'none';
+    const b = document.getElementById('done-banner');
+    b.style.display = 'block';
+    document.getElementById('done-sum').textContent = `Sleep ${S.sleep}h · Energy ${S.energy}/10 · ${S.priorities.filter(Boolean).length} priorities`;
+  }
+  updateScore();
+  updateDash();
+  renderReminders();
+}
+
+function updateScore() {
+  let sc = 50;
+  if (S.sleep) sc += (S.sleep-6)*3;
+  if (S.energy) sc += (S.energy-5)*3;
+  const hd = S.habits.filter(h=>h.done).length;
+  const ht = S.habits.length||1;
+  sc += (hd/ht)*18;
+  sc += Math.min(S.activeDays,25);
+  sc = Math.max(10, Math.min(100, Math.round(sc)));
+  S.score = sc;
+  document.getElementById('top-score').textContent = sc;
+  document.getElementById('score-n').textContent = sc;
+  const off = 138.2*(1-sc/100);
+  document.getElementById('score-arc').setAttribute('stroke-dashoffset', off.toFixed(1));
+  const v = sc>=85?'Elite zone. Stay relentless.':sc>=70?'Solid. Keep pushing.':sc>=50?'Room to grow.':'Time to rebuild.';
+  document.getElementById('score-v').textContent = v;
+}
+
+function updateDash() {
+  document.getElementById('d-sleep').innerHTML = (S.sleep||'—')+'<span style="font-size:12px;color:var(--txt2)">h</span>';
+  document.getElementById('d-energy').innerHTML = (S.energy||'—')+'<span style="font-size:12px;color:var(--txt2)">/10</span>';
+  const done = S.habits.filter(h=>h.done).length;
+  document.getElementById('d-habits').innerHTML = done+'<span style="font-size:12px;color:var(--txt2)">/'+S.habits.length+'</span>';
+  document.getElementById('d-days').innerHTML = S.activeDays+'<span style="font-size:12px;color:var(--txt2)">d</span>';
+}
+
+function doCheckin() {
+  S.sleep = parseFloat(document.getElementById('sl-sleep').value);
+  S.energy = parseInt(document.getElementById('sl-energy').value);
+  S.priorities = ['p1','p2','p3'].map(id=>document.getElementById(id).value.trim()).filter(Boolean);
+  S.checkedIn = true;
+  S.checkinDate = dayStr();
+  S.activeDays = (S.activeDays||0)+1;
+  addLog('checkin',`Sleep: ${S.sleep}h, Energy: ${S.energy}/10. Priorities: ${S.priorities.join(', ')||'none set'}`);
+  save();
+  renderToday();
+  genBriefing();
+  scheduleEvening();
+}
+
+/* ═══════════ BRIEFING ═══════════ */
+async function genBriefing() {
+  const el = document.getElementById('briefing');
+  el.style.display = 'block';
+  const bt = document.getElementById('briefing-text');
+  if (!S.key) {
+    bt.textContent = S.sleep<6?`Sleep was rough at ${S.sleep}h — be strategic today, not heroic. Focus on: ${S.priorities[0]||'your top priority'}.`:`Energy at ${S.energy}/10. First priority: ${S.priorities[0]||'set one'}. Make it count.`;
+    return;
+  }
+  bt.textContent = 'One moment...';
+  const p = `Write a warm, direct morning briefing for ${S.name} in 2 sentences max. Encouraging but honest. Data: Sleep ${S.sleep}h, Energy ${S.energy}/10, Priorities: ${S.priorities.join(', ')||'none'}. Active days: ${S.activeDays}. Just the briefing text, no labels.`;
+  const r = await ai(p, null, 100);
+  bt.textContent = r || `${S.sleep}h sleep, energy ${S.energy}/10. Focus on: ${S.priorities[0]||'what matters most today'}.`;
+}
+
+/* ═══════════ CHAT ═══════════ */
+function initChat() {
+  const t = timeStr();
+  document.getElementById('ai-intro-ts').textContent = t;
+  const intro = S.key
+    ? `Hey${S.name?' '+S.name:''}! I'm your Life OS. I know your goal and I'm here to help — not just push. Tell me what's going on, log anything, or say "remind me to..." and I'll set it up.`
+    : `Life OS is active. Add your Anthropic API key in ⚙️ Settings to unlock AI. You can still track habits, goals, and check in manually.`;
+  document.getElementById('ai-intro').textContent = intro;
+
+  // Restore chat history (last 20)
+  S.chat.slice(-20).forEach(m => {
+    if (m.role==='user'||m.role==='assistant') appendBubble(m.role==='user'?'user':'ai', m.content, m.time||'', false);
+  });
+}
+
+async function sendMsg() {
+  const field = document.getElementById('chat-field');
+  const txt = field.value.trim();
+  if (!txt) return;
+  field.value = ''; autoGrow(field);
+  const t = timeStr();
+  appendBubble('user', txt, t);
+  S.chat.push({role:'user', content:txt, time:t});
+  addLog('chat', txt);
+
+  if (!S.key) {
+    appendBubble('ai', 'Add your API key in ⚙️ Settings to enable AI responses.', timeStr());
+    save();
+    return;
+  }
+
+  const dots = showTyping();
+  const [reply] = await Promise.all([processChat(txt), extractReminders(txt)]);
+  dots.remove();
+  const r = reply || 'Connection issue — check your API key in ⚙️ Settings.';
+  const t2 = timeStr();
+  appendBubble('ai', r, t2);
+  S.chat.push({role:'assistant', content:r, time:t2});
+  if (S.chat.length>50) S.chat = S.chat.slice(-50);
+  save();
+}
+
+async function processChat(userMsg) {
+  const history = S.chat.slice(-8).map(m=>({role:m.role,content:m.content}));
+  history.push({role:'user',content:userMsg});
+
+  const sys = `You are Life OS — a warm, smart personal AI for ${S.name||'the user'}.
+
+PERSONALITY:
+- Warm, supportive, genuinely interested in them
+- Listen first, guide second
+- Firm only when they make excuses or miss what they committed to
+- Celebrate real wins; don't fake-celebrate small things
+- Conversational, never robotic or clinical
+
+REPLY RULES:
+- Keep replies SHORT — 1 to 3 sentences only
+- MAX one question per reply, and only if truly needed
+- If they ask to set a reminder, log something, or track anything — just confirm warmly and briefly, NEVER refuse or lecture
+- If they share dreams or visions — engage warmly, help them build on it
+- Be direct but kind; never harsh
+
+CONTEXT:
+- Goal: "${S.goal||'not set yet'}"
+- Weakness to watch: "${S.weakness||'not shared yet'}"
+- Habits: ${S.habits.map(h=>h.name+(h.done?'✓':'✗')).join(', ')||'none yet'}
+- Sleep: ${S.sleep||'?'}h · Energy: ${S.energy||'?'}/10
+- Active days: ${S.activeDays} · Score: ${S.score}/100`;
+
+  return await ai(sys, history, 160);
+}
+
+async function ai(systemOrPrompt, messages, maxTok) {
+  if (!S.key) return null;
+  const mt = maxTok||180;
+  try {
+    const body = messages
+      ? {model:'claude-sonnet-4-20250514',max_tokens:mt,system:systemOrPrompt,messages}
+      : {model:'claude-sonnet-4-20250514',max_tokens:mt,messages:[{role:'user',content:systemOrPrompt}]};
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':S.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (data.error){console.error('API:',data.error);return null;}
+    return data.content?.[0]?.text||null;
+  } catch(e){console.error('AI err:',e);return null;}
+}
+
+function appendBubble(role, text, ts, scroll=true) {
+  const box = document.getElementById('chat-box');
+  const d = document.createElement('div');
+  d.className='cm '+(role==='user'?'user':'ai');
+  d.innerHTML=`<div class="cb">${esc(text).replace(/\n/g,'<br>')}</div><div class="cts">${ts||timeStr()}</div>`;
+  box.appendChild(d);
+  if(scroll) d.scrollIntoView({behavior:'smooth',block:'end'});
+}
+
+function showTyping() {
+  const box=document.getElementById('chat-box');
+  const d=document.createElement('div');
+  d.className='cm ai';
+  d.innerHTML='<div class="typing"><span></span><span></span><span></span></div>';
+  box.appendChild(d);
+  d.scrollIntoView({behavior:'smooth'});
+  return d;
+}
+
+function autoGrow(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,96)+'px';}
+
+/* ═══════════ REMINDER EXTRACTION ═══════════ */
+async function extractReminders(text) {
+  const lower = text.toLowerCase();
+  const trigger = ['remind','reminder','every day','daily','every morning','every evening','every week','alarm','don\'t let me forget','make sure i','notify me'].some(w=>lower.includes(w));
+  if (!trigger) return;
+
+  if (!S.key) {
+    // Simple fallback
+    const r = {
+      id:uid(), text:text.substring(0,80),
+      hour: lower.includes('morning')?8:lower.includes('evening')?19:lower.includes('night')?21:9,
+      min:0, repeat: (lower.includes('every')||lower.includes('daily'))?'daily':'none',
+      days:[], date:dayStr(), done:false, calendared:false
+    };
+    r.due = descRem(r);
+    S.reminders.push(r);
+    save(); renderReminders();
+    return;
+  }
+
+  const prompt = `Today is ${new Date().toDateString()}. Extract a reminder from this message. Respond with ONLY a JSON object or "NONE":
+{"task":"short label","hour":0-23,"min":0-59,"repeat":"none"|"daily"|"weekly","days":["MO","TU","WE","TH","FR","SA","SU"],"date":"YYYY-MM-DD"}
+Examples:
+"remind me to drink water every day at 9am" -> {"task":"drink water","hour":9,"min":0,"repeat":"daily","days":[],"date":""}
+"gym every monday wednesday friday 6pm" -> {"task":"gym","hour":18,"min":0,"repeat":"weekly","days":["MO","WE","FR"],"date":""}
+"call doctor tomorrow at 3pm" -> {"task":"call doctor","hour":15,"min":0,"repeat":"none","days":[],"date":"${dayStr()}"}
+Message: "${text}"`;
+
+  const r = await ai(prompt, null, 150);
+  if (!r||r.trim().toUpperCase()==='NONE') return;
+  try {
+    const obj = JSON.parse(r.replace(/```json|```/g,'').trim());
+    const rem = {
+      id:uid(), text:obj.task||text.substring(0,60),
+      hour:obj.hour??9, min:obj.min||0,
+      repeat:obj.repeat||'none', days:obj.days||[],
+      date:obj.date||dayStr(), done:false, calendared:false
+    };
+    rem.due = descRem(rem);
+    S.reminders.push(rem);
+    save(); renderReminders();
+    // Confirm in chat
+    const confirm = `Got it — ${rem.text} ${rem.repeat==='daily'?'every day':rem.repeat==='weekly'?'every '+rem.days.join('/'):''} at ${fmt12(rem.hour,rem.min)}. Tap ⏰ on the Today screen to add it to your calendar.`;
+    appendBubble('ai', confirm, timeStr());
+    S.chat.push({role:'assistant',content:confirm,time:timeStr()});
+  } catch(e){}
+}
+
+function descRem(r) {
+  const t = fmt12(r.hour,r.min);
+  if (r.repeat==='daily') return 'Daily · '+t;
+  if (r.repeat==='weekly') {
+    const m={MO:'Mon',TU:'Tue',WE:'Wed',TH:'Thu',FR:'Fri',SA:'Sat',SU:'Sun'};
+    return (r.days||[]).map(d=>m[d]||d).join('/')+ ' · '+t;
+  }
+  try {
+    const d=new Date((r.date||dayStr())+'T00:00:00');
+    return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' · '+t;
+  } catch(e){ return (r.date||'today')+' · '+t; }
+}
+
+/* ═══════════ REMINDERS RENDER ═══════════ */
+function renderReminders() {
+  const el = document.getElementById('rem-list');
+  const active = S.reminders.filter(r=>!r.done);
+  if (!active.length) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--txt3);padding:8px 0;">Tell the chat to remind you of things — like "remind me to drink water every day at 9am".</div>';
+    return;
+  }
+  el.innerHTML = active.map(r=>`
+    <div class="rem-item">
+      <div class="rem-dot ${r.repeat==='daily'?'daily':r.repeat==='weekly'?'weekly':'once'}"></div>
+      <div class="rem-info">
+        <div class="rem-text">${esc(r.text)}</div>
+        <div class="rem-due">${r.due||''}${r.calendared?' · ⏰ added':''}</div>
+      </div>
+      <div class="rem-actions">
+        <button class="ra cal${r.calendared?' done':''}" onclick="addToCal('${r.id}')">⏰</button>
+        <button class="ra ok" onclick="doneRem('${r.id}')">Done</button>
+        <button class="ra del" onclick="delRem('${r.id}')">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function addToCal(id) {
+  const r = S.reminders.find(x=>x.id===id);
+  if (!r) return;
+  let d = new Date((r.date||dayStr())+'T00:00:00');
+  d.setHours(r.hour??9, r.min||0, 0, 0);
+  if (r.repeat!=='none' && d<new Date()) d=new Date();
+  if (d<new Date()) d=new Date(Date.now()+3600000);
+  const fmt = x => x.getFullYear()+p2(x.getMonth()+1)+p2(x.getDate())+'T'+p2(x.getHours())+p2(x.getMinutes())+'00';
+  const end = new Date(d.getTime()+30*60000);
+  let url='https://calendar.google.com/calendar/render?action=TEMPLATE';
+  url+='&text='+encodeURIComponent('Life OS: '+r.text);
+  url+='&dates='+fmt(d)+'/'+fmt(end);
+  url+='&details='+encodeURIComponent('Reminder from Life OS');
+  if (r.repeat==='daily') url+='&recur='+encodeURIComponent('RRULE:FREQ=DAILY');
+  else if (r.repeat==='weekly'&&r.days?.length) url+='&recur='+encodeURIComponent('RRULE:FREQ=WEEKLY;BYDAY='+r.days.join(','));
+  window.open(url,'_blank');
+  r.calendared=true; save(); renderReminders();
+}
+
+function addCalRecurring(title, h, m) {
+  const d = new Date(); d.setHours(h,m,0,0);
+  const fmt = x => x.getFullYear()+p2(x.getMonth()+1)+p2(x.getDate())+'T'+p2(x.getHours())+p2(x.getMinutes())+'00';
+  const end = new Date(d.getTime()+30*60000);
+  let url='https://calendar.google.com/calendar/render?action=TEMPLATE';
+  url+='&text='+encodeURIComponent('Life OS: '+title);
+  url+='&dates='+fmt(d)+'/'+fmt(end);
+  url+='&recur='+encodeURIComponent('RRULE:FREQ=DAILY');
+  window.open(url,'_blank');
+}
+
+function doneRem(id) {
+  const r=S.reminders.find(x=>x.id===id);
+  if(r){r.done=true;addLog('goal','Completed: '+r.text);save();renderReminders();updateScore();}
+}
+function delRem(id) { S.reminders=S.reminders.filter(x=>x.id!==id);save();renderReminders(); }
+
+/* ═══════════ HABITS ═══════════ */
+function renderHabits() {
+  const el=document.getElementById('hab-list');
+  if(!S.habits.length){el.innerHTML='<div style="font-size:13px;color:var(--txt3)">No habits yet. Add one below.</div>';return;}
+  el.innerHTML=S.habits.map(h=>`
+    <div class="hab${h.done?' done':''}" onclick="toggleHabit('${h.id}')">
+      <div class="hck"><svg fill="none" stroke="#0d1117" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+      <div class="hi"><div class="hn">${esc(h.name)}</div><div class="hm">${h.time}</div></div>
+      <div class="hst${h.streak>=3?' fire':''}">${h.streak>0?h.streak+'d':'—'}</div>
+    </div>`).join('');
+}
+
+function toggleHabit(id) {
+  const h=S.habits.find(x=>x.id===id); if(!h) return;
+  h.done=!h.done;
+  if(h.done){h.streak++;h.total++;addLog('habit','Completed: '+h.name);}
+  else if(h.streak>0) h.streak--;
+  save();renderHabits();updateDash();updateScore();
+}
+
+function saveHabit() {
+  const n=document.getElementById('mh-n').value.trim(); if(!n) return;
+  S.habits.push({id:uid(),name:n,time:document.getElementById('mh-t').value,streak:0,done:false,total:0});
+  addLog('habit','New habit: '+n);save();renderHabits();updateDash();closeModal('m-habit');
+  document.getElementById('mh-n').value='';
+}
+
+/* ═══════════ GOALS ═══════════ */
+function renderGoals() {
+  const el=document.getElementById('goal-list');
+  if(!S.goals.length){el.innerHTML='<div style="font-size:13px;color:var(--txt3)">No goals yet. Add one below.</div>';return;}
+  el.innerHTML=S.goals.map(g=>`
+    <div class="goal">
+      <div class="gt"><div class="gn">${esc(g.name)}</div><div class="gbadge ${g.done?'d':'a'}">${g.done?'Done':'Active'}</div></div>
+      <div class="gbar"><div class="gbf" style="width:${g.progress}%"></div></div>
+      <div class="gd">${g.progress}% complete${g.deadline?' · Due '+g.deadline:''}</div>
+      ${g.action?`<div class="ga">Weekly: <strong>${esc(g.action)}</strong></div>`:''}
+    </div>`).join('');
+}
+
+function saveGoal() {
+  const n=document.getElementById('mg-n').value.trim(); if(!n) return;
+  S.goals.push({id:uid(),name:n,deadline:document.getElementById('mg-d').value,action:document.getElementById('mg-a').value.trim(),progress:0,done:false});
+  addLog('goal','New goal: '+n);save();renderGoals();closeModal('m-goal');
+  ['mg-n','mg-d','mg-a'].forEach(id=>document.getElementById(id).value='');
+}
+
+/* ═══════════ MANIFEST ═══════════ */
+function renderManifest() {
+  if(S.vision) document.getElementById('m-vision').textContent=S.vision;
+  if(S.future) document.getElementById('m-future').textContent=S.future;
+  if(S.affirmation) document.getElementById('m-aff').textContent=S.affirmation;
+  document.getElementById('m-streak').textContent=S.mStreak+' days';
+  if(S.mDate===dayStr()){
+    document.getElementById('vis-btn').textContent='Visualized today ✓';
+    document.getElementById('vis-btn').style.opacity='.5';
+  }
+}
+
+async function doVisualize() {
+  if(S.mDate===dayStr()) return;
+  S.mDate=dayStr(); S.mStreak=(S.mStreak||0)+1;
+  addLog('manifest','Visualized — streak: '+S.mStreak+' days');
+  save(); renderManifest();
+  if(S.key) {
+    const r=await ai(`Write a single powerful daily affirmation for ${S.name} based on their goal: "${S.goal||'building a great life'}". Present tense, max 20 words, no quotes.`,null,50);
+    if(r){S.affirmation=r.replace(/"/g,'');document.getElementById('m-aff').textContent=S.affirmation;save();}
+  }
+}
+
+/* ═══════════ LOG ═══════════ */
+function addLog(type, text) {
+  S.log.push({id:uid(),type,text,time:new Date().toISOString()});
+  if(S.log.length>400) S.log=S.log.slice(-400);
+}
+
+let logFilter='all';
+function renderLog() {
+  const el=document.getElementById('log-list');
+  let entries=S.log.slice().reverse();
+  if(logFilter!=='all') entries=entries.filter(e=>e.type===logFilter);
+  if(!entries.length){el.innerHTML='<div class="log-empty">No entries yet.</div>';return;}
+  let html='', lastDay='';
+  entries.slice(0,120).forEach(e=>{
+    const d=new Date(e.time);
+    const day=d.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
+    if(day!==lastDay){html+=`<div class="ldh">${day}</div>`;lastDay=day;}
+    const t=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    html+=`<div class="le ${e.type}"><div class="ltime">${t}</div><div class="ltext">${esc(e.text)}</div><span class="ltag ${e.type}">${e.type}</span></div>`;
+  });
+  el.innerHTML=html;
+}
+
+function filterLog(type,btn) {
+  logFilter=type;
+  document.querySelectorAll('.lf').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLog();
+}
+
+/* ═══════════ NAVIGATION ═══════════ */
+function goTab(tab, btn) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(b=>b.classList.remove('active'));
+  document.getElementById('scr-'+tab).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('chat-bar').classList.toggle('vis', tab==='chat');
+  document.getElementById('content').scrollTop=0;
+  if(tab==='log') renderLog();
+}
+
+/* ═══════════ MODALS ═══════════ */
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.mover').forEach(bg=>{
+  bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('open');});
+});
+
+/* ═══════════ SETTINGS ═══════════ */
+function openSettings() {
+  document.getElementById('st-name').value=S.name||'';
+  document.getElementById('st-key').value=S.key||'';
+  document.getElementById('st-goal').value=S.goal||'';
+  document.getElementById('st-weak').value=S.weakness||'';
+  document.getElementById('st-sync').value=S.syncUrl||'';
+  document.getElementById('sync-result').textContent='';
+  openModal('m-settings');
+}
+
+function saveSettings() {
+  const n=document.getElementById('st-name').value.trim();
+  const k=document.getElementById('st-key').value.trim();
+  const g=document.getElementById('st-goal').value.trim();
+  const w=document.getElementById('st-weak').value.trim();
+  const su=document.getElementById('st-sync').value.trim();
+  if(n) S.name=n;
+  if(k) S.key=k;
+  if(g) S.goal=g;
+  if(w) S.weakness=w;
+  S.syncUrl=su;
+  save();
+  closeModal('m-settings');
+  renderToday();
+  setSyncDot(su?'ok':'off');
+  const btn=document.querySelector('#m-settings .mb-ok');
+  btn.textContent='Saved ✓';
+  setTimeout(()=>btn.textContent='Save',1500);
+}
+
+async function testSync() {
+  const url=document.getElementById('st-sync').value.trim();
+  const el=document.getElementById('sync-result');
+  if(!url){el.style.color='var(--red)';el.textContent='Enter a URL first.';return;}
+  el.style.color='var(--txt2)';el.textContent='Testing...';
+  try {
+    const res=await fetch(url+'?action=load');
+    const j=await res.json();
+    if(j.ok){el.style.color='var(--green)';el.textContent='✓ Connected successfully';}
+    else{el.style.color='var(--red)';el.textContent='✗ Error: '+(j.error||'unknown');}
+  } catch(e){el.style.color='var(--red)';el.textContent='✗ Could not connect. Check the URL.';}
+}
+
+function resetAll() {
+  if(!confirm('Delete ALL data? This cannot be undone.')) return;
+  localStorage.removeItem(DB);
+  sessionStorage.removeItem(DB+'_bak');
+  location.reload();
+}
+
+/* ═══════════ FORCE UPDATE / HARD REFRESH ═══════════ */
+async function forceUpdate() {
+  if(!confirm('This will clear the app cache and reload the latest version. Your data will be preserved.\n\nContinue?')) return;
+  try {
+    // Unregister all service workers
+    if('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r=>r.unregister()));
+    }
+    // Clear all caches
+    if('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k=>caches.delete(k)));
+    }
+  } catch(e){}
+  // Reload bypassing cache
+  window.location.reload(true);
+}
+
+/* ═══════════ NOTIFICATIONS ═══════════ */
+function reqNotif() {
+  if('Notification' in window && Notification.permission==='default') {
+    Notification.requestPermission().then(p=>{
+      if(p==='granted') pushNotif('Life OS active','Your AI is ready. I\'ll keep you on track.');
+    });
+  }
+}
+
+function pushNotif(title, body) {
+  if(!('Notification' in window)||Notification.permission!=='granted') return;
+  try {
+    const n=new Notification(title,{body,icon:'icon-192.png',badge:'icon-192.png'});
+    n.onclick=()=>{window.focus();n.close();};
+  } catch(e){}
+}
+
+function scheduleEvening() {
+  const now=new Date(), eve=new Date();
+  eve.setHours(21,0,0,0);
+  if(eve<=now) return;
+  setTimeout(()=>{
+    const u=S.habits.filter(h=>!h.done);
+    pushNotif('Life OS — Evening',u.length?`${u.length} habit(s) still unchecked: ${u.map(h=>h.name).join(', ')}`:'All habits done. Great day.');
+  }, eve-now);
+}
+
+/* ═══════════ CLOUD SYNC ═══════════ */
+let syncTimer=null;
+function queueSync() {
+  if(!S.syncUrl) return;
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(pushSync,3000);
+}
+
+async function pushSync() {
+  if(!S.syncUrl) return;
+  setSyncDot('syncing');
+  try {
+    await fetch(S.syncUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'save',data:S})});
+    setSyncDot('ok');
+  } catch(e){setSyncDot('err');}
+}
+
+async function reconcile() {
+  if(!S.syncUrl) return;
+  setSyncDot('syncing');
+  try {
+    const res=await fetch(S.syncUrl+'?action=load');
+    const j=await res.json();
+    if(j.ok&&j.data&&j.data.lastUpdated&&(!S.lastUpdated||j.data.lastUpdated>S.lastUpdated)) {
+      const su=S.syncUrl;
+      S={...S,...j.data,syncUrl:su};
+      try{localStorage.setItem(DB,JSON.stringify(S));}catch(e){}
+      render();
+      setSyncDot('ok');
+    } else { pushSync(); }
+  } catch(e){setSyncDot('err');}
+}
+
+function setSyncDot(state) {
+  const el=document.getElementById('sync-dot');
+  if(!el) return;
+  const c={syncing:'#f0c040',ok:'#2dd4a0',err:'#f06060',off:'rgba(255,255,255,0.18)'};
+  el.style.background=c[state]||c.off;
+  el.title='Sync: '+state;
+}
+
+/* ═══════════ SERVICE WORKER ═══════════ */
+if('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').then(reg=>{
+    // Check for updates
+    reg.addEventListener('updatefound',()=>{
+      const nw=reg.installing;
+      nw.addEventListener('statechange',()=>{
+        if(nw.state==='installed'&&navigator.serviceWorker.controller) {
+          document.getElementById('update-banner').style.display='block';
+        }
+      });
+    });
+  }).catch(()=>{});
+}
+</script>
+</body>
+</html>
