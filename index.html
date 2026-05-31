@@ -528,6 +528,7 @@ input[type=range] { width: 100%; height: 4px; accent-color: var(--gold); cursor:
       <div class="topbar-title">Life <span>OS</span></div>
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
+      <div id="sync-dot" style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);" title="Sync: off"></div>
       <div class="score-pill">
         <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
         <span id="top-score">—</span>
@@ -761,6 +762,28 @@ input[type=range] { width: 100%; height: 4px; accent-color: var(--gold); cursor:
 
     <div style="height:0.5px;background:var(--border);margin:16px 0;"></div>
 
+    <label style="display:block;font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;font-family:var(--font-display);font-weight:600;">Google Sheet Backup</label>
+    <p style="font-size:12px;color:var(--text-tertiary);line-height:1.5;margin-bottom:10px;">Paste your Apps Script web app URL (ends in /exec). Your data will auto-save to your Sheet and sync across devices.</p>
+    <div class="modal-row">
+      <label>Sync URL</label>
+      <input id="set-syncurl" placeholder="https://script.google.com/.../exec">
+    </div>
+    <button onclick="testSync()" style="width:100%;padding:11px;background:var(--bg-card);border:0.5px solid var(--border-light);border-radius:8px;color:var(--text-primary);font-family:var(--font-display);font-size:13px;font-weight:600;cursor:pointer;margin-bottom:4px;">Test Connection</button>
+    <div id="sync-test-result" style="font-size:12px;text-align:center;padding:6px 0;min-height:20px;"></div>
+
+    <div style="height:0.5px;background:var(--border);margin:16px 0;"></div>
+
+    <label style="display:block;font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;font-family:var(--font-display);font-weight:600;">Reliable Daily Reminders</label>
+    <p style="font-size:12px;color:var(--text-tertiary);line-height:1.5;margin-bottom:12px;">Tap to add recurring reminders to your Google Calendar. These fire reliably even when the app is closed.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button onclick="addDailyReminder('Morning check-in', 7, 0)" style="padding:11px 14px;background:var(--bg-card);border:0.5px solid var(--border-light);border-radius:8px;color:var(--text-primary);font-family:var(--font-body);font-size:13px;cursor:pointer;text-align:left;">7:00 AM — Morning check-in</button>
+      <button onclick="addDailyReminder('Midday habit check', 12, 0)" style="padding:11px 14px;background:var(--bg-card);border:0.5px solid var(--border-light);border-radius:8px;color:var(--text-primary);font-family:var(--font-body);font-size:13px;cursor:pointer;text-align:left;">12:00 PM — Midday check</button>
+      <button onclick="addDailyReminder('Visualize your future', 20, 0)" style="padding:11px 14px;background:var(--bg-card);border:0.5px solid var(--border-light);border-radius:8px;color:var(--text-primary);font-family:var(--font-body);font-size:13px;cursor:pointer;text-align:left;">8:00 PM — Manifestation</button>
+      <button onclick="addDailyReminder('Evening accountability', 21, 0)" style="padding:11px 14px;background:var(--bg-card);border:0.5px solid var(--border-light);border-radius:8px;color:var(--text-primary);font-family:var(--font-body);font-size:13px;cursor:pointer;text-align:left;">9:00 PM — Evening review</button>
+    </div>
+
+    <div style="height:0.5px;background:var(--border);margin:16px 0;"></div>
+
     <button onclick="resetApp()" style="width:100%;padding:12px;background:var(--danger-dim);border:0.5px solid rgba(240,96,93,0.3);border-radius:var(--radius-sm);color:var(--danger);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;margin-bottom:12px;">
       Reset All Data
     </button>
@@ -826,27 +849,94 @@ let S = {
   vision: '',
   futurePortrait: '',
   affirmation: 'I am building the life I deserve through discipline, not motivation.',
-  priorities: []
+  priorities: [],
+  syncUrl: '',
+  lastUpdated: 0
 };
 
 function save() {
+  S.lastUpdated = Date.now();
   try {
     localStorage.setItem(DB_KEY, JSON.stringify(S));
-    // Backup copy for extra safety
     sessionStorage.setItem(DB_KEY + '_session', JSON.stringify(S));
   } catch(e) { console.error('Save failed:', e); }
+  queueCloudSync();
 }
 
 function load() {
   try {
-    // Try localStorage first
     const d = localStorage.getItem(DB_KEY);
     if (d) { S = { ...S, ...JSON.parse(d) }; return true; }
-    // Fallback to sessionStorage
     const sd = sessionStorage.getItem(DB_KEY + '_session');
     if (sd) { S = { ...S, ...JSON.parse(sd) }; save(); return true; }
   } catch(e) { console.error('Load failed:', e); }
   return false;
+}
+
+/* ========== GOOGLE SHEET SYNC ========== */
+let cloudSyncTimer = null;
+
+function queueCloudSync() {
+  if (!S.syncUrl) return;
+  clearTimeout(cloudSyncTimer);
+  cloudSyncTimer = setTimeout(cloudSync, 2500);
+}
+
+async function cloudSync() {
+  if (!S.syncUrl) return;
+  setSyncStatus('syncing');
+  try {
+    await fetch(S.syncUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'save', data: S })
+    });
+    setSyncStatus('synced');
+  } catch(e) {
+    setSyncStatus('error');
+  }
+}
+
+async function cloudLoad() {
+  if (!S.syncUrl) return null;
+  try {
+    const res = await fetch(S.syncUrl + '?action=load');
+    const j = await res.json();
+    return j.ok ? j.data : null;
+  } catch(e) { return null; }
+}
+
+async function reconcileCloud() {
+  if (!S.syncUrl) return;
+  setSyncStatus('syncing');
+  const remote = await cloudLoad();
+  if (remote && remote.lastUpdated && (!S.lastUpdated || remote.lastUpdated > S.lastUpdated)) {
+    // Cloud is newer — pull it in
+    const syncUrl = S.syncUrl; // preserve
+    S = { ...S, ...remote, syncUrl };
+    try { localStorage.setItem(DB_KEY, JSON.stringify(S)); } catch(e) {}
+    rerenderAll();
+    setSyncStatus('synced');
+  } else {
+    // Local is newer or cloud empty — push up
+    cloudSync();
+  }
+}
+
+function setSyncStatus(state) {
+  const el = document.getElementById('sync-dot');
+  if (!el) return;
+  const colors = { syncing: '#f0c040', synced: '#2dd4a0', error: '#f0605d', off: 'rgba(255,255,255,0.2)' };
+  el.style.background = colors[state] || colors.off;
+  el.title = 'Sync: ' + state;
+}
+
+function rerenderAll() {
+  updateToday();
+  renderHabits();
+  renderGoals();
+  renderLog();
+  updateManifest();
 }
 
 // Save whenever app goes to background
@@ -899,6 +989,8 @@ function bootApp() {
   initChat();
   requestNotifPermission();
   scheduleReminders();
+  setSyncStatus(S.syncUrl ? 'synced' : 'off');
+  reconcileCloud();
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -1227,22 +1319,79 @@ function guessDate(text) {
   return 'today';
 }
 
+/* ========== GOOGLE CALENDAR REMINDERS ========== */
+// Generates a Google Calendar event link. Your phone's calendar fires the
+// reminder reliably even when this app is fully closed.
+function calendarUrl(title, dateStr, opts) {
+  opts = opts || {};
+  let start, end;
+
+  // Resolve the date/time
+  let d = new Date();
+  if (dateStr && /^\d{4}-\d{2}-\d{2}$/.test((dateStr || '').split(' ')[0])) {
+    d = new Date(dateStr.split(' ')[0] + 'T09:00:00');
+  }
+  // Time-of-day hints
+  const lower = (dateStr || '').toLowerCase();
+  if (lower.includes('evening') || lower.includes('night')) d.setHours(19, 0, 0, 0);
+  else if (lower.includes('morning')) d.setHours(8, 0, 0, 0);
+  else if (lower.includes('afternoon')) d.setHours(14, 0, 0, 0);
+  else if (!opts.hour) d.setHours(9, 0, 0, 0);
+
+  if (opts.hour != null) d.setHours(opts.hour, opts.min || 0, 0, 0);
+
+  // If the resolved time is already in the past today, push to now+1h
+  if (d < new Date() && !opts.recur) {
+    d = new Date(Date.now() + 60 * 60 * 1000);
+  }
+
+  start = fmtCalDate(d);
+  end = fmtCalDate(new Date(d.getTime() + 30 * 60 * 1000));
+
+  let url = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
+  url += '&text=' + encodeURIComponent('Life OS: ' + title);
+  url += '&dates=' + start + '/' + end;
+  url += '&details=' + encodeURIComponent('Reminder from your Life OS.');
+  if (opts.recur) url += '&recur=' + encodeURIComponent(opts.recur);
+  return url;
+}
+
+function fmtCalDate(d) {
+  // Format: YYYYMMDDTHHMMSS (local time, no Z so calendar uses device tz)
+  const p = n => String(n).padStart(2, '0');
+  return d.getFullYear() + p(d.getMonth()+1) + p(d.getDate()) + 'T' + p(d.getHours()) + p(d.getMinutes()) + '00';
+}
+
+function addToCalendar(id) {
+  const r = S.reminders.find(x => x.id === id);
+  if (!r) return;
+  window.open(calendarUrl(r.text, r.due), '_blank');
+  r.calendared = true;
+  save();
+  renderPending();
+}
+
 /* ========== PENDING / REMINDERS ========== */
 function renderPending() {
   const el = document.getElementById('pending-list');
   const active = S.reminders.filter(r => !r.done);
 
   if (!active.length) {
-    el.innerHTML = '<div style="font-size:13px;color:var(--text-tertiary);padding:12px 0;">No pending items. Chat to log commitments.</div>';
+    el.innerHTML = '<div style="font-size:13px;color:var(--text-tertiary);padding:12px 0;">No pending items. Chat to log commitments — they\'ll appear here.</div>';
     return;
   }
 
   el.innerHTML = active.slice(0, 8).map(r => `
     <div class="pending-item">
       <div class="pending-dot normal"></div>
-      <div class="pending-text">${escHtml(r.text)}</div>
-      <div class="pending-time">${r.due || ''}</div>
-      <button class="pending-action" onclick="markDone('${r.id}')">Done</button>
+      <div style="flex:1;min-width:0;">
+        <div class="pending-text">${escHtml(r.text)}</div>
+        <div class="pending-time">${r.due || ''}${r.calendared ? ' · ⏰ on calendar' : ''}</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
+        <button class="pending-action" style="background:rgba(96,165,250,0.15);border-color:rgba(96,165,250,0.3);color:#60a5fa;" onclick="addToCalendar('${r.id}')" title="Set reminder">⏰</button>
+        <button class="pending-action" onclick="markDone('${r.id}')">Done</button>
+      </div>
     </div>
   `).join('');
 }
@@ -1524,12 +1673,19 @@ function scheduleEvening() {
   setTimeout(checkNotifTriggers, ms);
 }
 
+function addDailyReminder(title, hour, min) {
+  const url = calendarUrl(title, dayStr(), { hour, min, recur: 'RRULE:FREQ=DAILY' });
+  window.open(url, '_blank');
+}
+
 /* ========== SETTINGS ========== */
 function openSettings() {
   document.getElementById('set-name').value = S.name || '';
   document.getElementById('set-key').value = S.apiKey || '';
   document.getElementById('set-goal').value = S.yearGoal || '';
   document.getElementById('set-weakness').value = S.weakness || '';
+  document.getElementById('set-syncurl').value = S.syncUrl || '';
+  document.getElementById('sync-test-result').textContent = '';
   openModal('m-settings');
 }
 
@@ -1538,20 +1694,39 @@ function saveSettings() {
   const key = document.getElementById('set-key').value.trim();
   const goal = document.getElementById('set-goal').value.trim();
   const weakness = document.getElementById('set-weakness').value.trim();
+  const syncUrl = document.getElementById('set-syncurl').value.trim();
 
   if (name) S.name = name;
   if (key) S.apiKey = key;
   if (goal) S.yearGoal = goal;
   if (weakness) S.weakness = weakness;
+  S.syncUrl = syncUrl;
 
   save();
   closeModal('m-settings');
   updateToday();
+  setSyncStatus(syncUrl ? 'synced' : 'off');
 
-  // Show confirmation
   const btn = document.querySelector('#m-settings .m-confirm');
   btn.textContent = 'Saved ✓';
   setTimeout(() => btn.textContent = 'Save', 1500);
+}
+
+async function testSync() {
+  const url = document.getElementById('set-syncurl').value.trim();
+  const result = document.getElementById('sync-test-result');
+  if (!url) { result.textContent = 'Enter a URL first.'; result.style.color = 'var(--danger)'; return; }
+  result.textContent = 'Testing...';
+  result.style.color = 'var(--text-secondary)';
+  try {
+    const res = await fetch(url + '?action=load');
+    const j = await res.json();
+    if (j.ok) { result.textContent = '✓ Connected successfully'; result.style.color = 'var(--success)'; }
+    else { result.textContent = '✗ Connected but error: ' + (j.error || 'unknown'); result.style.color = 'var(--danger)'; }
+  } catch(e) {
+    result.textContent = '✗ Could not connect. Check the URL and deployment access.';
+    result.style.color = 'var(--danger)';
+  }
 }
 
 function resetApp() {
