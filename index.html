@@ -41,6 +41,62 @@
 html,body{height:100%;overflow:hidden;}
 body{font-family:var(--fb);background:var(--bg);color:var(--txt);}
 
+
+/* ── MODE TOGGLE ── */
+.mode-tog{display:flex;background:var(--card);border:.5px solid var(--border2);border-radius:20px;padding:2px;margin-left:6px;}
+.mt-btn{border:none;background:none;color:var(--txt2);font-family:var(--ff);font-size:11px;font-weight:700;padding:4px 11px;border-radius:16px;cursor:pointer;transition:all .2s;}
+.mt-btn.active{background:var(--gold-d);color:var(--gold-l);}
+/* ── MONEY ── */
+.mny-stat{background:var(--card);border:.5px solid var(--border);border-radius:var(--rs);padding:13px 15px;}
+.budget-bar{height:7px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;margin-top:8px;}
+.budget-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--gold));border-radius:4px;transition:width .3s;}
+.budget-fill.over{background:var(--red);}
+.mny-add{background:var(--card);border:.5px solid var(--border2);border-radius:var(--r);padding:15px;margin-bottom:16px;}
+.mny-amt{width:100%;padding:13px 15px;background:rgba(255,255,255,.03);border:.5px solid var(--border2);border-radius:var(--rs);color:var(--txt);font-size:20px;font-family:var(--ff);font-weight:700;outline:none;margin-bottom:10px;}
+.mny-amt:focus{border-color:var(--gold-b);}
+.cat-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.cat-chip{padding:7px 13px;background:rgba(255,255,255,.04);border:.5px solid var(--border);border-radius:16px;color:var(--txt2);font-size:12px;font-family:var(--ff);font-weight:600;cursor:pointer;transition:all .15s;}
+.cat-chip.sel{background:var(--gold-d);border-color:var(--gold-b);color:var(--gold-l);}
+.mny-note{width:100%;padding:10px 13px;background:rgba(255,255,255,.03);border:.5px solid var(--border);border-radius:8px;color:var(--txt);font-size:13px;font-family:var(--fb);outline:none;margin-bottom:12px;}
+.txn{display:flex;align-items:center;gap:11px;padding:11px 14px;background:var(--card);border:.5px solid var(--border);border-radius:var(--rs);margin-bottom:6px;}
+.txn-cat{width:34px;height:34px;border-radius:9px;background:var(--gold-d);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.txn-main{flex:1;min-width:0;}
+.txn-t{font-size:13px;font-weight:600;font-family:var(--ff);}
+.txn-s{font-size:11px;color:var(--txt2);}
+.txn-amt{font-family:var(--ff);font-weight:700;font-size:14px;}
+.txn-del{background:none;border:none;color:var(--txt3);cursor:pointer;padding:4px;font-size:15px;}
+.cbar-row{margin-bottom:9px;}
+.cbar-hd{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;}
+.cbar{height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;}
+.cbar-fill{height:100%;background:var(--gold);border-radius:3px;}
+.ignored-badge{background:var(--red-d);border:.5px solid rgba(240,96,96,.3);color:var(--red);font-size:11px;font-family:var(--ff);font-weight:700;padding:3px 9px;border-radius:12px;display:inline-block;margin-top:6px;}
+
+
+/* ── SKILLS ── */
+.skill-card{background:var(--card);border:.5px solid var(--border2);border-radius:var(--r);padding:15px;margin-bottom:12px;}
+.sk-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;}
+.sk-name{font-family:var(--ff);font-size:15px;font-weight:700;}
+.sk-sub{font-size:11px;color:var(--txt2);margin-bottom:11px;}
+.sk-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:10px;}
+.sk-day{aspect-ratio:1;border-radius:7px;background:rgba(255,255,255,.04);border:.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--ff);font-size:10px;font-weight:600;color:var(--txt3);cursor:pointer;position:relative;}
+.sk-day.done{background:var(--green-d);border-color:rgba(45,212,160,.35);color:var(--green);}
+.sk-day.miss{background:var(--red-d);border-color:rgba(240,96,96,.3);color:var(--red);}
+.sk-day.today{border-color:var(--gold);border-width:1.5px;color:var(--gold-l);}
+.sk-day.future{opacity:.3;cursor:default;}
+.sk-day .rmk{position:absolute;bottom:2px;right:3px;width:4px;height:4px;border-radius:50%;background:var(--gold);}
+.sk-learned{background:var(--gold-d);border:.5px solid var(--gold-b);color:var(--gold-l);font-family:var(--ff);font-size:11px;font-weight:700;padding:4px 10px;border-radius:12px;border:none;cursor:pointer;}
+.sk-row{display:flex;gap:8px;align-items:center;}
+/* ── PRIVACY TOGGLE ── */
+.priv-row{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:.5px solid var(--border2);border-radius:var(--rs);padding:12px 15px;margin-bottom:14px;}
+.priv-t{font-size:13px;font-family:var(--ff);font-weight:600;}
+.priv-s{font-size:11px;color:var(--txt2);}
+.tgl{position:relative;width:44px;height:24px;flex-shrink:0;}
+.tgl input{display:none;}
+.tgl .tr{position:absolute;inset:0;background:rgba(255,255,255,.1);border-radius:14px;transition:.2s;cursor:pointer;}
+.tgl .tr:before{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s;}
+.tgl input:checked + .tr{background:var(--green);}
+.tgl input:checked + .tr:before{left:23px;}
+
 /* ── SETUP ── */
 #setup{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1.5rem;background:var(--bg);overflow-y:auto;}
 .su{width:100%;max-width:420px;animation:fadeUp .4s ease;}
@@ -270,7 +326,11 @@ input[type=range]{width:100%;height:4px;accent-color:var(--gold);cursor:pointer;
   <div class="topbar">
     <div class="tb-left">
       <div class="tb-icon">O</div>
-      <div class="tb-title">Life <span>OS</span></div>
+      <div class="tb-title" id="tb-title">Life <span>OS</span></div>
+      <div class="mode-tog">
+        <button class="mt-btn active" id="mt-life" onclick="setMode('life')">Life</button>
+        <button class="mt-btn" id="mt-money" onclick="setMode('money')">Money</button>
+      </div>
     </div>
     <div class="tb-right">
       <div id="sync-dot" title="Sync off"></div>
@@ -419,6 +479,50 @@ input[type=range]{width:100%;height:4px;accent-color:var(--gold);cursor:pointer;
       </div>
       <div id="log-list"><div class="log-empty">No entries yet. Start by checking in.</div></div>
     </div>
+    <!-- MONEY -->
+    <div class="screen" id="scr-money">
+      <div class="sh">Money</div>
+      <div class="ss">Every rupee accounted for.</div>
+
+      <div class="priv-row">
+        <div><div class="priv-t">🔒 Private Mode</div><div class="priv-s">Bot never states totals/balance unprompted. Ask /money to see numbers.</div></div>
+        <label class="tgl"><input type="checkbox" id="priv-tgl" onchange="togglePriv(this.checked)"><span class="tr"></span></label>
+      </div>
+
+      <div class="sg">
+        <div class="mny-stat"><div class="slb">Today</div><div class="sn" id="mny-today">₹0</div></div>
+        <div class="mny-stat"><div class="slb">This Month</div><div class="sn" id="mny-month">₹0</div></div>
+        <div class="mny-stat" style="grid-column:1/-1"><div class="slb">Budget</div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div class="sn" id="mny-budget-n">—</div><div class="su2" id="mny-budget-pct"></div>
+          </div>
+          <div class="budget-bar"><div class="budget-fill" id="mny-budget-fill" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <div class="mny-add">
+        <input class="mny-amt" id="mny-amt" type="number" inputmode="decimal" placeholder="₹ Amount">
+        <div class="cat-chips" id="cat-chips"></div>
+        <input class="mny-note" id="mny-note" placeholder="Note (e.g. lunch, uber)">
+        <button class="cc-btn" onclick="addExpense()">Log Expense</button>
+      </div>
+
+      <div class="sec-title">By Category</div>
+      <div id="mny-cats" style="margin-bottom:16px"></div>
+
+      <div class="sec-title">Recent</div>
+      <div id="mny-list"><div class="log-empty">Nothing logged yet.</div></div>
+    </div>
+
+    <!-- SKILLS -->
+    <div class="screen" id="scr-skill">
+      <div class="sh">Skills</div>
+      <div class="ss">30 days. Show up daily or admit you quit.</div>
+      <button class="cc-btn" style="margin-bottom:16px" onclick="openModal('m-skill')">+ Start Learning Something New</button>
+      <div id="skill-list"><div class="log-empty">No skills yet. The 30-day clock starts the day you add one.</div></div>
+    </div>
+
+
   </div>
 
   <!-- CHAT BAR -->
@@ -453,6 +557,10 @@ input[type=range]{width:100%;height:4px;accent-color:var(--gold);cursor:pointer;
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
       Manifest
     </button>
+    <button class="ni" onclick="goTab('skill',this)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+      Skill
+    </button>
     <button class="ni" onclick="goTab('log',this)">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
       Log
@@ -483,6 +591,32 @@ input[type=range]{width:100%;height:4px;accent-color:var(--gold);cursor:pointer;
   </div>
 </div>
 
+
+<!-- SKILL MODAL -->
+<div class="mover" id="m-skill">
+  <div class="mpanel">
+    <div class="mbar"></div>
+    <div class="mh">New Skill — 30 Day Challenge</div>
+    <div class="mr"><label>What are you learning?</label><input id="msk-n" placeholder="e.g. Python, Guitar, Video editing"></div>
+    <p style="font-size:12px;color:var(--txt3);margin-bottom:12px;">Calendar starts today. Every day: mark done or missed, add a remark on what you did.</p>
+    <div class="mbtns"><button class="mb-cancel" onclick="closeModal('m-skill')">Cancel</button><button class="mb-ok" onclick="saveSkill()">Start</button></div>
+  </div>
+</div>
+
+<!-- SKILL DAY MODAL -->
+<div class="mover" id="m-skday">
+  <div class="mpanel">
+    <div class="mbar"></div>
+    <div class="mh" id="skd-title">Day</div>
+    <div class="mr"><label>Remark — what did you do?</label><textarea id="skd-rmk" rows="3" style="width:100%;padding:11px 13px;background:rgba(255,255,255,.03);border:.5px solid var(--border2);border-radius:8px;color:var(--txt);font-size:13px;font-family:var(--fb);outline:none;resize:vertical;" placeholder="e.g. Finished loops chapter, built a tiny script"></textarea></div>
+    <div class="mbtns">
+      <button class="mb-cancel" style="color:var(--red)" onclick="setSkillDay('miss')">✖ Missed</button>
+      <button class="mb-ok" onclick="setSkillDay('done')">✓ Done</button>
+    </div>
+    <button class="su-skip" onclick="closeModal('m-skday')">Close</button>
+  </div>
+</div>
+
 <!-- SETTINGS MODAL -->
 <div class="mover" id="m-settings">
   <div class="mpanel">
@@ -495,11 +629,13 @@ input[type=range]{width:100%;height:4px;accent-color:var(--gold);cursor:pointer;
     <div class="mr"><label>Anthropic API Key</label><input type="password" id="st-key" placeholder="sk-ant-..." autocomplete="off"></div>
     <div class="mr"><label>Main Goal This Year</label><input id="st-goal" placeholder="Be specific"></div>
     <div class="mr"><label>Biggest Weakness</label><input id="st-weak" placeholder="The pattern to break"></div>
+    <div class="mr"><label>Monthly Budget (₹)</label><input type="number" id="st-budget" placeholder="e.g. 25000"></div>
 
     <div class="sdivider"></div>
     <div style="font-family:var(--ff);font-size:11px;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:9px;font-weight:600;">Google Sheet Backup</div>
     <p style="font-size:12px;color:var(--txt3);line-height:1.5;margin-bottom:10px;">Auto-saves all your data to your own Google Sheet. Works across every device.</p>
     <div class="mr"><label>Sync URL (Apps Script /exec)</label><input id="st-sync" placeholder="https://script.google.com/.../exec"></div>
+    <div class="mr"><label>Sync Key (must match SYNC_KEY in Code.gs)</label><input type="password" id="st-synckey" placeholder="your secret key" autocomplete="off"></div>
     <button class="sec-btn" onclick="testSync()" style="margin-bottom:4px;">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       Test Connection
@@ -538,7 +674,9 @@ let S = {
   checkinDate:'', activeDays:0,
   mStreak:0, mDate:'', vision:'', future:'',
   affirmation:'I am building the life I deserve — one decision at a time.',
-  priorities:[], lastUpdated:0
+  priorities:[], lastUpdated:0,
+  money:[], budget:0, ignoredDays:[],
+  skills:[], moneyPrivate:true, balance:null, syncKey:''
 };
 
 function save() {
@@ -612,6 +750,9 @@ function boot() {
   }
   render();
   initChat();
+  const pt=document.getElementById('priv-tgl'); if(pt) pt.checked=(S.moneyPrivate!==false);
+  const md=new URLSearchParams(location.search).get('mode');
+  if(md==='money') setMode('money');
   reqNotif();
   setSyncDot(S.syncUrl ? 'ok' : 'off');
   reconcile();
@@ -623,6 +764,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
 /* ═══════════ RENDER ALL ═══════════ */
 function render() {
+  renderSkills();
+  renderMoney();
   renderToday();
   renderHabits();
   renderGoals();
@@ -1036,6 +1179,7 @@ function filterLog(type,btn) {
 
 /* ═══════════ NAVIGATION ═══════════ */
 function goTab(tab, btn) {
+  if(MODE==='money') setMode('life', true);
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.ni').forEach(b=>b.classList.remove('active'));
   document.getElementById('scr-'+tab).classList.add('active');
@@ -1059,6 +1203,8 @@ function openSettings() {
   document.getElementById('st-goal').value=S.goal||'';
   document.getElementById('st-weak').value=S.weakness||'';
   document.getElementById('st-sync').value=S.syncUrl||'';
+  document.getElementById('st-budget').value=S.budget||'';
+  document.getElementById('st-synckey').value=S.syncKey||'';
   document.getElementById('sync-result').textContent='';
   openModal('m-settings');
 }
@@ -1068,6 +1214,8 @@ function saveSettings() {
   const k=document.getElementById('st-key').value.trim();
   const g=document.getElementById('st-goal').value.trim();
   const w=document.getElementById('st-weak').value.trim();
+  S.budget=parseFloat(document.getElementById('st-budget').value)||0;
+  S.syncKey=document.getElementById('st-synckey').value.trim();
   const su=document.getElementById('st-sync').value.trim();
   if(n) S.name=n;
   if(k) S.key=k;
@@ -1149,6 +1297,139 @@ function scheduleEvening() {
   }, eve-now);
 }
 
+
+
+/* ═══════════ SKILLS (30-day) ═══════════ */
+let SKD={sid:null,idx:null};
+function saveSkill(){
+  const n=document.getElementById('msk-n').value.trim();
+  if(!n){alert('Name the skill.');return;}
+  S.skills=S.skills||[];
+  S.skills.push({id:uid(),name:n,start:dayStr(),learned:false,
+    days:Array.from({length:30},(_,i)=>({idx:i,status:'',remark:''}))});
+  document.getElementById('msk-n').value='';
+  closeModal('m-skill'); save(); renderSkills();
+  addLog('habit','Started 30-day skill: '+n);
+}
+function skillDate(start,idx){const d=new Date(start+'T00:00:00');d.setDate(d.getDate()+idx);return d.toISOString().split('T')[0];}
+function renderSkills(){
+  const el=document.getElementById('skill-list'); if(!el) return;
+  const sk=S.skills||[];
+  if(!sk.length){el.innerHTML='<div class="log-empty">No skills yet. The 30-day clock starts the day you add one.</div>';return;}
+  const td=dayStr();
+  el.innerHTML=sk.map(s=>{
+    const done=s.days.filter(d=>d.status==='done').length;
+    const grid=s.days.map((d,i)=>{
+      const dt=skillDate(s.start,i);
+      const cls=['sk-day',d.status,dt===td?'today':'',dt>td?'future':''].join(' ');
+      const click=dt>td?'':' onclick="openSkillDay(\''+s.id+'\','+i+')"';
+      return '<div class="'+cls+'"'+click+'>'+(i+1)+(d.remark?'<span class="rmk"></span>':'')+'</div>';
+    }).join('');
+    const badge=s.learned?'<span class="sk-learned">🏆 LEARNED</span>':'<button class="sk-learned" onclick="markLearned(\''+s.id+'\')">Mark Learned</button>';
+    return '<div class="skill-card"><div class="sk-hd"><div class="sk-name">'+esc(s.name)+'</div>'+badge+'</div>'+
+      '<div class="sk-sub">Started '+s.start+' · '+done+'/30 days done</div>'+
+      '<div class="sk-grid">'+grid+'</div>'+
+      '<div class="sk-row"><button class="sk-btn" onclick="delSkill(\''+s.id+'\')">Delete</button></div></div>';
+  }).join('');
+}
+function openSkillDay(sid,idx){
+  const s=(S.skills||[]).find(x=>x.id===sid); if(!s) return;
+  SKD={sid:sid,idx:idx};
+  document.getElementById('skd-title').textContent=s.name+' — Day '+(idx+1)+' ('+skillDate(s.start,idx)+')';
+  document.getElementById('skd-rmk').value=s.days[idx].remark||'';
+  openModal('m-skday');
+}
+function setSkillDay(status){
+  const s=(S.skills||[]).find(x=>x.id===SKD.sid); if(!s) return;
+  s.days[SKD.idx].status=status;
+  s.days[SKD.idx].remark=document.getElementById('skd-rmk').value.trim();
+  closeModal('m-skday'); save(); renderSkills();
+}
+function markLearned(sid){
+  const s=(S.skills||[]).find(x=>x.id===sid); if(!s) return;
+  s.learned=true; save(); renderSkills();
+  addLog('goal','Skill LEARNED: '+s.name+' 🏆');
+}
+function delSkill(sid){ if(!confirm('Delete this skill and its log?'))return; S.skills=(S.skills||[]).filter(x=>x.id!==sid); save(); renderSkills(); }
+
+/* ═══════════ PRIVACY ═══════════ */
+function togglePriv(v){ S.moneyPrivate=v; save(); }
+
+/* ═══════════ MONEY & MODE ═══════════ */
+let MODE='life';
+const MCATS=['Food','Transport','Personal','Work','Home','Fun','Other'];
+const MICO={Food:'🍜',Transport:'🚗',Personal:'🧍',Work:'💼',Home:'🏠',Fun:'🎮',Other:'📦'};
+let selCat='Food';
+
+function setMode(m, fromTab){
+  MODE=m;
+  document.getElementById('mt-life').classList.toggle('active',m==='life');
+  document.getElementById('mt-money').classList.toggle('active',m==='money');
+  document.getElementById('tb-title').innerHTML = m==='money'?'Money <span>OS</span>':'Life <span>OS</span>';
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('chat-bar').classList.remove('vis');
+  if(m==='money'){
+    document.getElementById('scr-money').classList.add('active');
+    document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+    renderMoney();
+  } else if(!fromTab){
+    document.getElementById('scr-today').classList.add('active');
+    document.querySelectorAll('.ni').forEach((n,i)=>n.classList.toggle('active',i===0));
+  }
+}
+
+function renderCatChips(){
+  const el=document.getElementById('cat-chips'); if(!el) return;
+  el.innerHTML=MCATS.map(c=>'<button class="cat-chip'+(c===selCat?' sel':'')+'" onclick="selCat=\''+c+'\';renderCatChips()">'+MICO[c]+' '+c+'</button>').join('');
+}
+
+function addExpense(){
+  const amt=parseFloat(document.getElementById('mny-amt').value);
+  if(!amt||amt<=0){alert('Enter an amount.');return;}
+  const note=document.getElementById('mny-note').value.trim();
+  S.money=S.money||[];
+  S.money.push({id:uid(),ts:Date.now(),date:dayStr(),time:timeStr(),amount:amt,cat:selCat,note:note,src:'app'});
+  document.getElementById('mny-amt').value='';document.getElementById('mny-note').value='';
+  save(); renderMoney();
+}
+function delExpense(id){ S.money=(S.money||[]).filter(x=>x.id!==id); save(); renderMoney(); }
+
+function renderMoney(){
+  const el=document.getElementById('mny-list'); if(!el) return;
+  renderCatChips();
+  const mo=dayStr().slice(0,7), td=dayStr();
+  const mrows=(S.money||[]).filter(x=>x.date&&x.date.indexOf(mo)===0);
+  const tToday=(S.money||[]).filter(x=>x.date===td).reduce((a,x)=>a+Number(x.amount||0),0);
+  const tMonth=mrows.reduce((a,x)=>a+Number(x.amount||0),0);
+  document.getElementById('mny-today').textContent='₹'+tToday.toLocaleString('en-IN');
+  document.getElementById('mny-month').textContent='₹'+tMonth.toLocaleString('en-IN');
+  const b=Number(S.budget||0);
+  const fill=document.getElementById('mny-budget-fill');
+  if(b>0){
+    const pct=Math.min(100,Math.round(tMonth/b*100));
+    document.getElementById('mny-budget-n').textContent='₹'+b.toLocaleString('en-IN');
+    document.getElementById('mny-budget-pct').textContent=pct+'% used';
+    fill.style.width=pct+'%'; fill.classList.toggle('over',tMonth>b);
+  } else {
+    document.getElementById('mny-budget-n').textContent='—';
+    document.getElementById('mny-budget-pct').textContent='Set in ⚙️ Settings';
+    fill.style.width='0%';
+  }
+  const byCat={}; mrows.forEach(x=>{byCat[x.cat]=(byCat[x.cat]||0)+Number(x.amount||0);});
+  const mx=Math.max(1,...Object.values(byCat));
+  document.getElementById('mny-cats').innerHTML=Object.keys(byCat).sort((a,c)=>byCat[c]-byCat[a]).map(c=>
+    '<div class="cbar-row"><div class="cbar-hd"><span>'+(MICO[c]||'')+' '+c+'</span><span class="sl-val">₹'+byCat[c].toLocaleString('en-IN')+'</span></div><div class="cbar"><div class="cbar-fill" style="width:'+Math.round(byCat[c]/mx*100)+'%"></div></div></div>').join('')||'<div class="log-empty">No spends this month.</div>';
+  const recent=(S.money||[]).slice().sort((a,c)=>(c.ts||0)-(a.ts||0)).slice(0,30);
+  el.innerHTML=recent.length?recent.map(x=>
+    '<div class="txn"><div class="txn-cat">'+(MICO[x.cat]||'📦')+'</div><div class="txn-main"><div class="txn-t">'+esc(x.note||x.cat)+'</div><div class="txn-s">'+x.date+' · '+(x.time||'')+(x.src==='bot'?' · via Telegram':'')+'</div></div><div class="txn-amt">₹'+Number(x.amount).toLocaleString('en-IN')+'</div><button class="txn-del" onclick="delExpense(\''+x.id+'\')">✕</button></div>').join('')
+    :'<div class="log-empty">Nothing logged yet. Log from here or Telegram.</div>';
+}
+
+function mergeById(a,b){
+  const map={}; (a||[]).forEach(x=>{if(x&&x.id)map[x.id]=x;}); (b||[]).forEach(x=>{if(x&&x.id)map[x.id]=x;});
+  return Object.values(map).sort((x,y)=>(x.ts||0)-(y.ts||0));
+}
+
 /* ═══════════ CLOUD SYNC ═══════════ */
 let syncTimer=null;
 function queueSync() {
@@ -1161,7 +1442,7 @@ async function pushSync() {
   if(!S.syncUrl) return;
   setSyncDot('syncing');
   try {
-    await fetch(S.syncUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'save',data:S})});
+    await fetch(S.syncUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'save',key:S.syncKey,data:S})});
     setSyncDot('ok');
   } catch(e){setSyncDot('err');}
 }
@@ -1170,11 +1451,14 @@ async function reconcile() {
   if(!S.syncUrl) return;
   setSyncDot('syncing');
   try {
-    const res=await fetch(S.syncUrl+'?action=load');
+    const res=await fetch(S.syncUrl+'?action=load&k='+encodeURIComponent(S.syncKey||''));
     const j=await res.json();
     if(j.ok&&j.data&&j.data.lastUpdated&&(!S.lastUpdated||j.data.lastUpdated>S.lastUpdated)) {
       const su=S.syncUrl;
+      const locMoney=S.money, locLog=S.log;
       S={...S,...j.data,syncUrl:su};
+      S.money=mergeById(locMoney,S.money);
+      S.log=mergeById(locLog,S.log);
       try{localStorage.setItem(DB,JSON.stringify(S));}catch(e){}
       render();
       setSyncDot('ok');

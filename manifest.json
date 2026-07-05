@@ -1,5 +1,5 @@
 {
-  "name": "Life OS — Personal Operating System",
+  "name": "Life OS \u2014 Personal Operating System",
   "short_name": "Life OS",
   "description": "Your AI chief of staff. Tracks habits, goals, reminders, and holds you accountable.",
   "start_url": "/",
@@ -7,9 +7,46 @@
   "orientation": "portrait",
   "background_color": "#0d1117",
   "theme_color": "#0d1117",
-  "categories": ["productivity","lifestyle"],
+  "categories": [
+    "productivity",
+    "lifestyle"
+  ],
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Money",
+      "short_name": "Money",
+      "url": "/?mode=money",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Life",
+      "short_name": "Life",
+      "url": "/?mode=life",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
   ]
 }
