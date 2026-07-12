@@ -11,31 +11,37 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#0A0C10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
 :root {
-  --bg: #0d1117;
-  --card: #141c27;
-  --card2: #1a2235;
-  --border: rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.13);
-  --gold: #d4a020;
-  --gold-l: #f0c040;
-  --gold-d: rgba(212,160,32,0.14);
-  --gold-b: rgba(212,160,32,0.28);
-  --txt: #e6e1d8;
-  --txt2: rgba(230,225,216,0.52);
-  --txt3: rgba(230,225,216,0.28);
-  --green: #2dd4a0;
-  --green-d: rgba(45,212,160,0.12);
-  --red: #f06060;
-  --red-d: rgba(240,96,96,0.12);
-  --blue: #60a5fa;
-  --purple: #a78bfa;
-  --r: 14px; --rs: 10px;
-  --ff: 'Outfit',sans-serif;
-  --fb: 'DM Sans',sans-serif;
+  --bg: #0A0C10;
+  --card: #12151C;
+  --card2: #191E28;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.12);
+  --gold: #E0A82E;
+  --gold-l: #F3C452;
+  --gold-d: rgba(224,168,46,0.13);
+  --gold-b: rgba(224,168,46,0.30);
+  --txt: #F2F3F5;
+  --txt2: rgba(242,243,245,0.55);
+  --txt3: rgba(242,243,245,0.30);
+  --green: #34D399;
+  --green-d: rgba(52,211,153,0.12);
+  --red: #F87171;
+  --red-d: rgba(248,113,113,0.12);
+  --blue: #60A5FA;
+  --purple: #A78BFA;
+  --r: 16px; --rs: 12px;
+  --ff: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI Variable Display', 'Segoe UI', Roboto, sans-serif;
+  --fb: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+  --spring: cubic-bezier(.32,.72,.33,1);
   --sb: env(safe-area-inset-bottom,0px);
+  --st: env(safe-area-inset-top,0px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;}
@@ -96,6 +102,41 @@ body{font-family:var(--fb);background:var(--bg);color:var(--txt);}
 .tgl .tr:before{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s;}
 .tgl input:checked + .tr{background:var(--green);}
 .tgl input:checked + .tr:before{left:23px;}
+
+
+/* ═══ POLISH LAYER ═══ */
+.topbar{background:rgba(10,12,16,.72)!important;backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);border-bottom:.5px solid var(--border);padding-top:calc(10px + var(--st))!important;}
+.bnav{background:rgba(10,12,16,.78)!important;backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);border-top:.5px solid var(--border);padding-bottom:calc(6px + var(--sb))!important;}
+.screen{animation:screenIn .26s var(--spring);}
+@keyframes screenIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+button,.ni,.cat-chip,.sk-day,.txn,.hab-item{transition:transform .14s var(--spring),background .18s,border-color .18s,color .18s;}
+button:active,.cat-chip:active,.sk-day:active{transform:scale(.96);}
+.cc-btn{font-weight:700;letter-spacing:.01em;box-shadow:0 1px 0 rgba(255,255,255,.06) inset;}
+.sn,.txn-amt,.sl-val{font-variant-numeric:tabular-nums;font-feature-settings:'tnum';}
+/* iOS segmented control */
+.mode-tog{background:rgba(255,255,255,.06)!important;border:none!important;border-radius:9px!important;padding:2px!important;position:relative;}
+.mt-btn{border-radius:7px!important;font-size:12px!important;padding:5px 14px!important;font-weight:600!important;letter-spacing:.01em;}
+.mt-btn.active{background:var(--card2)!important;color:var(--txt)!important;box-shadow:0 1px 3px rgba(0,0,0,.4),0 0 0 .5px rgba(255,255,255,.08);}
+/* Signature: day completion strip */
+.daybar{display:flex;gap:4px;margin:2px 0 18px;}
+.daybar span{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.07);overflow:hidden;position:relative;}
+.daybar span.on::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,var(--gold),var(--gold-l));border-radius:2px;animation:fillIn .5s var(--spring);}
+@keyframes fillIn{from{transform:scaleX(0);transform-origin:left}to{transform:scaleX(1)}}
+.daybar-lbl{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--txt3);font-weight:600;margin-bottom:6px;}
+/* Toasts */
+#toast-wrap{position:fixed;left:50%;bottom:calc(84px + var(--sb));transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;}
+.toast{background:rgba(25,30,40,.92);backdrop-filter:blur(16px);border:.5px solid var(--border2);color:var(--txt);font-family:var(--ff);font-size:13px;font-weight:600;padding:11px 18px;border-radius:22px;box-shadow:0 8px 28px rgba(0,0,0,.5);display:flex;gap:12px;align-items:center;animation:toastIn .3s var(--spring);pointer-events:auto;max-width:88vw;}
+.toast.out{animation:toastOut .25s ease forwards;}
+.toast button{background:none;border:none;color:var(--gold-l);font-family:var(--ff);font-weight:700;font-size:13px;cursor:pointer;padding:0;}
+@keyframes toastIn{from{opacity:0;transform:translateY(14px) scale(.95)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateY(8px) scale(.97)}}
+/* Sync pill */
+#sync-pill{width:7px;height:7px;border-radius:50%;background:var(--txt3);transition:background .3s;}
+#sync-pill.ok{background:var(--green);}
+#sync-pill.err{background:var(--red);}
+/* Focus + reduced motion */
+:focus-visible{outline:2px solid var(--gold-b);outline-offset:2px;border-radius:6px;}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
 
 /* ── SETUP ── */
 #setup{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1.5rem;background:var(--bg);overflow-y:auto;}
@@ -676,7 +717,7 @@ let S = {
   affirmation:'I am building the life I deserve — one decision at a time.',
   priorities:[], lastUpdated:0,
   money:[], budget:0, ignoredDays:[],
-  skills:[], moneyPrivate:true, balance:null, syncKey:''
+  skills:[], moneyPrivate:true, balance:null, syncKey:'akash-lifeos-k9x27m4q'
 };
 
 function save() {
@@ -763,7 +804,21 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ═══════════ RENDER ALL ═══════════ */
+
+function renderDaybar(){
+  const el=document.getElementById('daybar'); if(!el) return;
+  const segs=[];
+  segs.push((S.priorities||[]).length>0);                                   // priorities set
+  (S.habits||[]).slice(0,4).forEach(h=>segs.push(!!h.done));                // habits
+  segs.push((S.money||[]).some(x=>x.date===dayStr()) || false);             // money logged today
+  el.innerHTML=segs.map(on=>'<span class="'+(on?'on':'')+'"></span>').join('');
+  const done=segs.filter(Boolean).length;
+  const lbl=document.getElementById('daybar-lbl');
+  if(lbl) lbl.textContent = done===segs.length ? 'Day complete' : "Today's completion · "+done+'/'+segs.length;
+}
+
 function render() {
+  renderDaybar();
   renderSkills();
   renderMoney();
   renderToday();
@@ -923,15 +978,15 @@ async function ai(systemOrPrompt, messages, maxTok) {
   const mt = maxTok||180;
   try {
     const body = messages
-      ? {model:'claude-sonnet-4-20250514',max_tokens:mt,system:systemOrPrompt,messages}
-      : {model:'claude-sonnet-4-20250514',max_tokens:mt,messages:[{role:'user',content:systemOrPrompt}]};
+      ? {model:'claude-sonnet-4-6',max_tokens:mt,system:systemOrPrompt,messages}
+      : {model:'claude-sonnet-4-6',max_tokens:mt,messages:[{role:'user',content:systemOrPrompt}]};
     const res = await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':S.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify(body)
     });
     const data = await res.json();
-    if (data.error){console.error('API:',data.error);return null;}
+    if (data.error){console.error('API:',data.error);return '⚠️ '+(data.error.message||data.error.type||'API error');}
     return data.content?.[0]?.text||null;
   } catch(e){console.error('AI err:',e);return null;}
 }
@@ -1237,7 +1292,8 @@ async function testSync() {
   if(!url){el.style.color='var(--red)';el.textContent='Enter a URL first.';return;}
   el.style.color='var(--txt2)';el.textContent='Testing...';
   try {
-    const res=await fetch(url+'?action=load');
+    const kk=document.getElementById('st-synckey').value.trim();
+    const res=await fetch(url+'?action=load&k='+encodeURIComponent(kk));
     const j=await res.json();
     if(j.ok){el.style.color='var(--green)';el.textContent='✓ Connected successfully';}
     else{el.style.color='var(--red)';el.textContent='✗ Error: '+(j.error||'unknown');}
@@ -1299,11 +1355,26 @@ function scheduleEvening() {
 
 
 
+
+/* ═══ TOAST / HAPTIC / UNDO ═══ */
+function buzz(ms){ try{navigator.vibrate&&navigator.vibrate(ms||8);}catch(e){} }
+function toast(msg, actionLabel, actionFn, ms){
+  let w=document.getElementById('toast-wrap');
+  if(!w){w=document.createElement('div');w.id='toast-wrap';document.body.appendChild(w);}
+  const t=document.createElement('div');t.className='toast';
+  t.innerHTML='<span>'+esc(msg)+'</span>';
+  if(actionLabel){const b=document.createElement('button');b.textContent=actionLabel;
+    b.onclick=()=>{actionFn&&actionFn();t.classList.add('out');setTimeout(()=>t.remove(),260);};t.appendChild(b);}
+  w.appendChild(t);
+  setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),260);}, ms||3200);
+}
+let _lastDeleted=null;
+
 /* ═══════════ SKILLS (30-day) ═══════════ */
 let SKD={sid:null,idx:null};
 function saveSkill(){
   const n=document.getElementById('msk-n').value.trim();
-  if(!n){alert('Name the skill.');return;}
+  if(!n){toast('Name the skill first.');return;}
   S.skills=S.skills||[];
   S.skills.push({id:uid(),name:n,start:dayStr(),learned:false,
     days:Array.from({length:30},(_,i)=>({idx:i,status:'',remark:''}))});
@@ -1343,7 +1414,7 @@ function setSkillDay(status){
   const s=(S.skills||[]).find(x=>x.id===SKD.sid); if(!s) return;
   s.days[SKD.idx].status=status;
   s.days[SKD.idx].remark=document.getElementById('skd-rmk').value.trim();
-  closeModal('m-skday'); save(); renderSkills();
+  closeModal('m-skday'); save(); renderSkills(); buzz();
 }
 function markLearned(sid){
   const s=(S.skills||[]).find(x=>x.id===sid); if(!s) return;
@@ -1385,14 +1456,18 @@ function renderCatChips(){
 
 function addExpense(){
   const amt=parseFloat(document.getElementById('mny-amt').value);
-  if(!amt||amt<=0){alert('Enter an amount.');return;}
+  if(!amt||amt<=0){toast('Enter an amount first.');return;}
   const note=document.getElementById('mny-note').value.trim();
   S.money=S.money||[];
   S.money.push({id:uid(),ts:Date.now(),date:dayStr(),time:timeStr(),amount:amt,cat:selCat,note:note,src:'app'});
   document.getElementById('mny-amt').value='';document.getElementById('mny-note').value='';
-  save(); renderMoney();
+  save(); renderMoney(); buzz(); toast('Logged ₹'+amt.toLocaleString('en-IN'));
 }
-function delExpense(id){ S.money=(S.money||[]).filter(x=>x.id!==id); save(); renderMoney(); }
+function delExpense(id){
+  _lastDeleted=(S.money||[]).find(x=>x.id===id)||null;
+  S.money=(S.money||[]).filter(x=>x.id!==id); save(); renderMoney(); buzz(10);
+  if(_lastDeleted) toast('Expense deleted','Undo',()=>{S.money.push(_lastDeleted);_lastDeleted=null;save();renderMoney();},5000);
+}
 
 function renderMoney(){
   const el=document.getElementById('mny-list'); if(!el) return;
@@ -1442,7 +1517,7 @@ async function pushSync() {
   if(!S.syncUrl) return;
   setSyncDot('syncing');
   try {
-    await fetch(S.syncUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'save',key:S.syncKey,data:S})});
+    await fetch(S.syncUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'save',key:S.syncKey,data:(()=>{const d={...S};delete d.key;delete d.syncKey;return d;})()})});
     setSyncDot('ok');
   } catch(e){setSyncDot('err');}
 }
@@ -1454,9 +1529,9 @@ async function reconcile() {
     const res=await fetch(S.syncUrl+'?action=load&k='+encodeURIComponent(S.syncKey||''));
     const j=await res.json();
     if(j.ok&&j.data&&j.data.lastUpdated&&(!S.lastUpdated||j.data.lastUpdated>S.lastUpdated)) {
-      const su=S.syncUrl;
+      const su=S.syncUrl, lk=S.key, lsk=S.syncKey;
       const locMoney=S.money, locLog=S.log;
-      S={...S,...j.data,syncUrl:su};
+      S={...S,...j.data,syncUrl:su,key:lk,syncKey:lsk};
       S.money=mergeById(locMoney,S.money);
       S.log=mergeById(locLog,S.log);
       try{localStorage.setItem(DB,JSON.stringify(S));}catch(e){}
